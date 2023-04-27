@@ -1,0 +1,12 @@
+.vscode
+.ipynb_checkpoints
+__pycache__
+rsc
+driver
+paths
+04temp.ipynb
+credentials.py
+database.py
+formulario_016.ipynb
+formulario_016.py
+registro.py
