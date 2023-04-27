@@ -1,0 +1,5 @@
+Boton;camino
+5.9;"//*[@id=""MainContent_cboFoodDeliveryservice""]"
+ 1.40 ;"//*[@id=""MainContent_cboOtherWashMaterialDistribution""]"
+1.9;"//*[@id=""MainContent_cboyn_art_retention""]"
+1.11;"//*[@id=""MainContent_cboyn_complete_hts_refereal""]"
