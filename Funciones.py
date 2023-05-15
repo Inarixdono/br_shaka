@@ -6,40 +6,45 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.alert import Alert
+from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import UnexpectedAlertPresentException
 import time
 from datetime import datetime
 
 col = 0
 driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
-wait = WebDriverWait(driver,4)
+wait = WebDriverWait(driver,10)
 
 def login(): # Iniciar sesion
     driver.get("https://pactbrmis.org/Account/Login.aspx")
     driver.find_element('xpath','//*[@id="txtUsername"]').send_keys("jenielwtf@gmail.com")
     driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
     driver.find_element('xpath','//*[@id="btnLogin"]').click()   
-    
-def firma(): #Firma y plan de caso
-    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si")
-    firma = driver.find_element('xpath',od.XPATH.iloc[6,1])
-    Select(firma).select_by_value(od.Servir.iloc[col,5])
-    time.sleep(1)
-    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si")
-    
+
 def visita(): # Motivo y lugar de visita
-    if od.Servir.iloc[col,2] == "Visita regular":  # Motivo de la Visita
-        Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_value("1") 
-    elif od.Servir.iloc[col,2] == "Seguimiento":
-        Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_value("2")
-    elif od.Servir.iloc[col,2] == "Monitoreo":
-        Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_value("3")
-            
-    if od.Servir.iloc[col,3] == "SAI":  # Lugar del servicio
-        Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_value("1")
-    elif od.Servir.iloc[col,3] == "HOGAR":
-        Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_value("2")
-        
+    Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_visible_text(od.Servir.iloc[col,2])      
+    Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_visible_text(od.Servir.iloc[col,3])
+
+def firma(): #Firma y plan de caso
+    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") # Plan de caso 
+    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.Servir.iloc[col,5]) # Selecciona al cuidador presente en la entrega del servicio
+    time.sleep(1)
+    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") # Afirma que el cuidador firmó el formulario
+
+def encabezado(): #Estoy haciendo que el encabezado se complete con una sola función.
+    # Hogar
+    driver.find_element('xpath',od.XPATH.iloc[0,1]).click()
+    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.Servir.iloc[col,0], Keys.ENTER)
+    # Fecha
+    set_fecha = datetime.strptime(od.Servir.iloc[col,1], '%d/%m/%Y')
+    fecha = set_fecha.strftime('%d/%m/%Y')
+    ctrl.copy(fecha)
+    driver.find_element('xpath',od.XPATH.iloc[2,1]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
+    visita()
+    firma()
+    driver.find_element('xpath','//*[@id="MainContent_btnsaveMain"]').click()
+    wait.until(EC.alert_is_present()).accept() 
+       
 def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
     indice = 1
     miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
