@@ -32,11 +32,10 @@ def firma(): #Firma y plan de caso
     Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") # Afirma que el cuidador firmó el formulario
 
 def encabezado(): #Estoy haciendo que el encabezado se complete con una sola función.
-    # Hogar
-    driver.find_element('xpath',od.XPATH.iloc[0,1]).click()
+    driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=")
+    driver.find_element('xpath',od.XPATH.iloc[0,1]).click() # Hogar
     driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.Servir.iloc[col,0], Keys.ENTER)
-    # Fecha
-    set_fecha = datetime.strptime(od.Servir.iloc[col,1], '%d/%m/%Y')
+    set_fecha = datetime.strptime(od.Servir.iloc[col,1], '%d/%m/%Y') # Fecha
     fecha = set_fecha.strftime('%d/%m/%Y')
     ctrl.copy(fecha)
     driver.find_element('xpath',od.XPATH.iloc[2,1]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
