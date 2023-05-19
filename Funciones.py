@@ -28,8 +28,8 @@ def encabezado():
 
     # Selecciona el hogar y asigna la fecha
     driver.find_element('xpath',od.XPATH.iloc[0,1]).click() 
-    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.HOGAR[col], Keys.ENTER) # Manda el código del hogar
-    set_fecha = datetime.strptime(od.FECHA[col], '%d/%m/%Y') # Formatea la fecha
+    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.HOGAR[col], Keys.ENTER)
+    set_fecha = datetime.strptime(od.FECHA[col], '%d/%m/%Y')
     fecha = set_fecha.strftime('%d/%m/%Y')
     ctrl.copy(fecha)
     driver.find_element('xpath',od.XPATH.iloc[2,1]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
@@ -39,10 +39,10 @@ def encabezado():
     Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_visible_text(od.LUGAR[col])
 
     # Firma
-    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") # Plan de caso 
-    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.CUIDADOR[col]) # Selecciona al cuidador presente en la entrega del servicio
+    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") 
+    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.CUIDADOR[col]) 
     time.sleep(1) #TODO: MEJORAR ESTA ESPERA
-    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") # Afirma que el cuidador firmó el formulario
+    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") 
     
     # Guarda el encabezado
     driver.find_element('xpath','//*[@id="MainContent_btnsaveMain"]').click()
@@ -71,7 +71,7 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
             escuela = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledInSchool"]')
             actividad = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledEconomicActivity"]')
             flag = miembros.get_attribute('value') in od.ben_salidos    
-            if flag == False:       
+            if not flag: # Quité la comparación de la bandera con "False"       
                 if int(edad) > 17 and int(edad) < 21:
                     Select(escuela).select_by_index(1)
                     Select(actividad).select_by_index(2)
@@ -88,3 +88,6 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
                 print('Beneficiario salido')          
         indice += 1
     print('Servicio digitado')
+
+    # Probar la funcion beneficiarios repetidas veces con familias que tengan beneficiarios salidos
+    # y mayores de 18 años para capturar errores.
