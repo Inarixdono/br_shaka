@@ -21,26 +21,30 @@ def login(): # Iniciar sesion
     driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
     driver.find_element('xpath','//*[@id="btnLogin"]').click()   
 
-def visita(): # Motivo y lugar de visita
-    Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_visible_text(od.Servir.iloc[col,2])      
-    Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_visible_text(od.Servir.iloc[col,3])
+def encabezado(): 
 
-def firma(): #Firma y plan de caso
-    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") # Plan de caso 
-    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.Servir.iloc[col,5]) # Selecciona al cuidador presente en la entrega del servicio
-    time.sleep(1)
-    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") # Afirma que el cuidador firmó el formulario
+    # Entra al formulario de entrada de servicios
+    driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
-def encabezado(): #Estoy haciendo que el encabezado se complete con una sola función.
-    driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=")
-    driver.find_element('xpath',od.XPATH.iloc[0,1]).click() # Hogar
-    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.Servir.iloc[col,0], Keys.ENTER)
-    set_fecha = datetime.strptime(od.Servir.iloc[col,1], '%d/%m/%Y') # Fecha
+    # Selecciona el hogar y asigna la fecha
+    driver.find_element('xpath',od.XPATH.iloc[0,1]).click() 
+    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.HOGAR[col], Keys.ENTER) # Manda el código del hogar
+    set_fecha = datetime.strptime(od.FECHA[col], '%d/%m/%Y') # Formatea la fecha
     fecha = set_fecha.strftime('%d/%m/%Y')
     ctrl.copy(fecha)
     driver.find_element('xpath',od.XPATH.iloc[2,1]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
-    visita()
-    firma()
+
+    # Motivo y lugar de visita
+    Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_visible_text(od.MOTIVO[col])      
+    Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_visible_text(od.LUGAR[col])
+
+    # Firma
+    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") # Plan de caso 
+    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.CUIDADOR[col]) # Selecciona al cuidador presente en la entrega del servicio
+    time.sleep(1) #TODO: MEJORAR ESTA ESPERA
+    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") # Afirma que el cuidador firmó el formulario
+    
+    # Guarda el encabezado
     driver.find_element('xpath','//*[@id="MainContent_btnsaveMain"]').click()
     wait.until(EC.alert_is_present()).accept() 
        
