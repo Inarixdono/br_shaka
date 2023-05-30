@@ -11,7 +11,6 @@ from selenium.common.exceptions import UnexpectedAlertPresentException
 import time
 from datetime import datetime
 
-col = 0
 driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
 wait = WebDriverWait(driver,10)
 
@@ -21,7 +20,7 @@ def login(): # Iniciar sesion
     driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
     driver.find_element('xpath','//*[@id="btnLogin"]').click()   
 
-def encabezado(): 
+def encabezado(col): 
 
     # Entra al formulario de entrada de servicios
     driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
@@ -47,6 +46,28 @@ def encabezado():
     # Guarda el encabezado
     driver.find_element('xpath','//*[@id="MainContent_btnsaveMain"]').click()
     wait.until(EC.alert_is_present()).accept() 
+
+def servir(servicio, dnrcode = 'N/A', serv2 = 'N/A', dnr2 = 'N/A'):
+
+    if servicio == '1.40' or servicio == '1.9':
+        dominio = 'Salud'
+    elif servicio == '5.9':
+        dominio = 'Fortalecimiento'
+
+    driver.find_element('xpath', od.dominio[dominio]).click()
+    WebDriverWait(driver,10).until(EC.visibility_of(driver.find_element('xpath',od.servicios[servicio])))
+    Select(driver.find_element('xpath',od.servicios[servicio])).select_by_index(1)
+    if dnrcode != 'N/A':
+        Select(driver.find_element('xpath',od.donante[servicio])).select_by_index(dnrcode)
+    
+    if dnr2 != 'N/A':
+        servicio = serv2
+        dnrcode = dnr2
+        servir(servicio, dnrcode)
+
+    driver.find_element('xpath',od.guardar[dominio])
+    
+        
        
 def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
     indice = 1
@@ -54,8 +75,8 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
     cantidad = len(miembros.find_elements('tag name','option'))-1
     while indice <= cantidad: 
         miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
-        dominio = driver.find_element('xpath','//*[@id="MainContent_mainPanal"]/a[3]')  
-        servicio = driver.find_element('xpath','//*[@id="MainContent_cboOtherWashMaterialDistribution"]') 
+        dominio = driver.find_element('xpath',od.dominio['Salud'])  
+        servicio = driver.find_element('xpath',od.servicios['1.40']) 
         dominio.click()
         WebDriverWait(driver,10).until(EC.visibility_of(servicio))
         Select(miembros).select_by_index(indice)
@@ -63,10 +84,12 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
             WebDriverWait(driver,10).until(EC.invisibility_of_element(servicio))  
         except UnexpectedAlertPresentException:
             print("Beneficiario tiene 21 años")
+            dominio = driver.find_element('xpath',od.dominio['Salud'])
+            dominio.click()      
         else:
             miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
-            dominio = driver.find_element('xpath','//*[@id="MainContent_mainPanal"]/a[3]')  
-            servicio = driver.find_element('xpath','//*[@id="MainContent_cboOtherWashMaterialDistribution"]') 
+            dominio = driver.find_element('xpath',od.dominio['Salud'])  
+            servicio = driver.find_element('xpath',od.servicios['1.40']) 
             edad = driver.find_element('xpath','//*[@id="MainContent_txtAge"]').get_attribute("value")
             escuela = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledInSchool"]')
             actividad = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledEconomicActivity"]')
@@ -78,14 +101,12 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
                 else:
                     Select(escuela).select_by_index(3)
                     Select(actividad).select_by_index(3)
-                dominio.click() # Aquí empieza a servir
-                WebDriverWait(driver,10).until(EC.visibility_of(servicio))
-                Select(servicio).select_by_index(1)
-                Select(driver.find_element('xpath','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]')).select_by_index(6)
-                driver.find_element('xpath','//*[@id="MainContent_btnsaveHealth"]').click() # Guarda el servicio
+                servir('1.40', 6,'5.9',9)
                 wait.until(EC.alert_is_present()).accept() # Espera
             else:
-                print('Beneficiario salido')          
+                print('Beneficiario salido')  
+                dominio = driver.find_element('xpath',od.dominio['Salud'])
+                dominio.click()           
         indice += 1
     print('Servicio digitado')
 

@@ -10,3 +10,16 @@ FECHA = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['
 MOTIVO = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['MotivoVisita'].tolist()
 LUGAR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['EntregaEn'].tolist()
 CUIDADOR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Idcare'].tolist()
+
+servicios = {'1.9':'//*[@id="MainContent_cboyn_art_retention"]',
+             '1.40':'//*[@id="MainContent_cboOtherWashMaterialDistribution"]',
+             '5.9':'//*[@id="MainContent_cboFoodDeliveryservice"]'}
+
+donante = {'1.40':'//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]',
+           '5.9':'//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'}
+
+dominio = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
+           'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
+
+guardar = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
+           'Fortalecimiento':'//*[@id="MainContent_btnsave"]',}
