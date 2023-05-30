@@ -1,4 +1,4 @@
-import Elementos as od
+import pandas as pd
 import pyperclip as ctrl 
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
@@ -10,6 +10,39 @@ from selenium.webdriver.common.keys import Keys
 from selenium.common.exceptions import UnexpectedAlertPresentException
 import time
 from datetime import datetime
+
+# Datos
+
+fam_salidas = pd.read_csv('Archivos\FamSalidas.csv', delimiter = ';', index_col = 'Hogar')['ID'].tolist()
+ben_salidos = pd.read_csv('Archivos\BenSalidos.csv', delimiter = ';', index_col = 'Ben')['ID'].tolist()
+XPATH = pd.read_csv('Archivos\XPATH.csv', delimiter = ";", index_col = "ID",)['xPath'].tolist()
+HOGAR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Hogar'].tolist()
+FECHA = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['FechaVisita'].tolist()
+MOTIVO = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['MotivoVisita'].tolist()
+LUGAR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['EntregaEn'].tolist()
+CUIDADOR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Idcare'].tolist()
+SERV1 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv1'].tolist()
+SERV2 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv2'].tolist()
+SERV3 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv3'].tolist()
+SERV4 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv4'].tolist()
+DNR1 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don1'].tolist()
+DNR2 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don2'].tolist()
+DNR3 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don3'].tolist()
+DNR4 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don4'].tolist()
+
+SERVICIOS = {'1.9':'//*[@id="MainContent_cboyn_art_retention"]',
+             '1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution"]',
+             '5.9':'//*[@id="MainContent_cboFoodDeliveryservice"]'}
+
+DONANTE = {'1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]',
+           '5.9':'//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'}
+
+DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
+           'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
+
+GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
+            'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
+            'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
 
 driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
 wait = WebDriverWait(driver,10)
@@ -30,71 +63,65 @@ def encabezado(col):
     driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
     # Selecciona el hogar y asigna la fecha
-    driver.find_element('xpath',od.XPATH.iloc[0,1]).click() 
-    driver.find_element('xpath', od.XPATH.iloc[1,1]).send_keys(od.HOGAR[col], Keys.ENTER)
-    set_fecha = datetime.strptime(od.FECHA[col], '%d/%m/%Y')
+    Elemento(XPATH[0]).click() 
+    Elemento(XPATH[1]).send_keys(HOGAR[col], Keys.ENTER)
+    set_fecha = datetime.strptime(FECHA[col], '%d/%m/%Y')
     fecha = set_fecha.strftime('%d/%m/%Y')
     ctrl.copy(fecha)
-    driver.find_element('xpath',od.XPATH.iloc[2,1]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
+    Elemento(XPATH[2]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
 
     # Motivo y lugar de visita
-    Select(driver.find_element('xpath',od.XPATH.iloc[3,1])).select_by_visible_text(od.MOTIVO[col])      
-    Select(driver.find_element('xpath',od.XPATH.iloc[4,1])).select_by_visible_text(od.LUGAR[col])
+    Select(Elemento(XPATH[3])).select_by_visible_text(MOTIVO[col])      
+    Select(Elemento(XPATH[4])).select_by_visible_text(LUGAR[col])
 
     # Firma
-    Select(driver.find_element('xpath',od.XPATH.iloc[5,1])).select_by_visible_text("Si") 
-    Select(driver.find_element('xpath',od.XPATH.iloc[6,1])).select_by_value(od.CUIDADOR[col]) 
+    Select(Elemento(XPATH[5])).select_by_visible_text("Si") 
+    Select(Elemento(XPATH[6])).select_by_value(CUIDADOR[col]) 
     time.sleep(1) #TODO: MEJORAR ESTA ESPERA
-    Select(driver.find_element('xpath',od.XPATH.iloc[7,1])).select_by_visible_text("Si") 
+    Select(Elemento(XPATH[7])).select_by_visible_text("Si") 
     
     # Guarda el encabezado
-    driver.find_element('xpath','//*[@id="MainContent_btnsaveMain"]').click()
+    Elemento(GUARDAR['Encabezado']).click()
     wait.until(EC.alert_is_present()).accept() 
 
-def servir(servicio, dnrcode = 'N/A', serv2 = 'N/A', dnr2 = 'N/A'):
+def servir(*parametros):
+    for i in range(0, len(parametros), 2):
+        servicio, donante = parametros[i:i+2]
+        if float(servicio) < 2:
+            dominio = 'Salud'
+        elif float(servicio) > 5 and float(servicio) < 6:
+            dominio = 'Fortalecimiento'
+        else:
+            break
+        if not Elemento(servicio).is_displayed():
+            Elemento(DOMINIO[dominio]).click()
+        WebDriverWait(driver,10).until(EC.visibility_of(Elemento(SERVICIOS[servicio])))
+        Select(Elemento(SERVICIOS[str(servicio)])).select_by_index(1)
+        if donante != 'N/A':
+            Select(Elemento(donante[str(servicio)])).select_by_index(int(donante)) 
+    Elemento(GUARDAR[dominio]).click()
+    wait.until(EC.alert_is_present()).accept() # Espera
 
-    if servicio == '1.40' or servicio == '1.9':
-        dominio = 'Salud'
-    elif servicio == '5.9':
-        dominio = 'Fortalecimiento'
-
-    driver.find_element('xpath', od.dominio[dominio]).click()
-    WebDriverWait(driver,10).until(EC.visibility_of(driver.find_element('xpath',od.servicios[servicio])))
-    Select(driver.find_element('xpath',od.servicios[servicio])).select_by_index(1)
-    if dnrcode != 'N/A':
-        Select(driver.find_element('xpath',od.donante[servicio])).select_by_index(dnrcode)
-    
-    if dnr2 != 'N/A':
-        servicio = serv2
-        dnrcode = dnr2
-        servir(servicio, dnrcode)
-
-    driver.find_element('xpath',od.guardar[dominio])
-    
-        
-       
-def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
+              
+def beneficiario(col): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
     indice = 1
-    miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
-    cantidad = len(miembros.find_elements('tag name','option'))-1
+    miembros = '//*[@id="MainContent_cbohhMember"]'
+    cantidad = len(Elemento(miembros).find_elements('tag name','option'))-1
     while indice <= cantidad: 
-        miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
-        dominio = driver.find_element('xpath',od.dominio['Salud'])  
-        servicio = driver.find_element('xpath',od.servicios['1.40']) 
-        dominio.click()
-        WebDriverWait(driver,10).until(EC.visibility_of(servicio))
-        Select(miembros).select_by_index(indice)
+        dominio = DOMINIO['Salud']
+        servicio = SERVICIOS['1.4']
+        Elemento(dominio).click()
+        WebDriverWait(driver,10).until(EC.visibility_of(Elemento(servicio)))
+        Select(Elemento(miembros)).select_by_index(indice)
         try:
-            WebDriverWait(driver,10).until(EC.invisibility_of_element(servicio))  
+            WebDriverWait(driver,10).until(EC.invisibility_of_element(Elemento(servicio)))  
         except UnexpectedAlertPresentException:
-            print("Beneficiario tiene 21 años")
-            dominio = driver.find_element('xpath',od.dominio['Salud'])
-            dominio.click()      
+            print("Beneficiario tiene 21 años")   
         else:
             edad = driver.find_element('xpath','//*[@id="MainContent_txtAge"]').get_attribute("value")
             escuela = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledInSchool"]')
             actividad = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledEconomicActivity"]')
-            flag = miembros.get_attribute('value') in od.ben_salidos    
+            flag = Elemento(miembros).get_attribute('value') in ben_salidos    
             if not flag: # Quité la comparación de la bandera con "False"       
                 if int(edad) > 17 and int(edad) < 21:
                     Select(escuela).select_by_index(1)
@@ -102,12 +129,10 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
                 else:
                     Select(escuela).select_by_index(3)
                     Select(actividad).select_by_index(3)
-                servir('1.40', 6,'5.9',9)
-                wait.until(EC.alert_is_present()).accept() # Espera
+                servir('1.4',6,'5.9',9,'N/A','N/A')
             else:
                 print('Beneficiario salido')  
-                dominio = driver.find_element('xpath',od.dominio['Salud'])
-                dominio.click()           
+                Elemento(dominio).click()           
         indice += 1
     print('Servicio digitado')
 
