@@ -20,6 +20,10 @@ def login(): # Iniciar sesion
     driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
     driver.find_element('xpath','//*[@id="btnLogin"]').click()   
 
+def Elemento(ruta):
+    Elemento = driver.find_element('xpath',ruta)
+    return(Elemento)
+
 def encabezado(col): 
 
     # Entra al formulario de entrada de servicios
@@ -87,9 +91,6 @@ def beneficiario(): # Hace un recorrido entre los beneficiarios y le va marcando
             dominio = driver.find_element('xpath',od.dominio['Salud'])
             dominio.click()      
         else:
-            miembros = driver.find_element('xpath','//*[@id="MainContent_cbohhMember"]')
-            dominio = driver.find_element('xpath',od.dominio['Salud'])  
-            servicio = driver.find_element('xpath',od.servicios['1.40']) 
             edad = driver.find_element('xpath','//*[@id="MainContent_txtAge"]').get_attribute("value")
             escuela = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledInSchool"]')
             actividad = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledEconomicActivity"]')
