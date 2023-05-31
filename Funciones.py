@@ -32,7 +32,8 @@ DNR4 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['D
 
 SERVICIOS = {'1.9':'//*[@id="MainContent_cboyn_art_retention"]',
              '1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution"]',
-             '5.9':'//*[@id="MainContent_cboFoodDeliveryservice"]'}
+             '5.9':'//*[@id="MainContent_cboFoodDeliveryservice"]',
+             '1.2':'//*[@id="MainContent_cboyn_wash"]'}
 
 DONANTE = {'1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]',
            '5.9':'//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'}
@@ -87,23 +88,25 @@ def encabezado(col):
 def servir(*parametros):
     for i in range(0, len(parametros), 2):
         servicio, donante = parametros[i:i+2]
-        if float(servicio) < 2:
-            dominio = 'Salud'
-        elif float(servicio) > 5 and float(servicio) < 6:
-            dominio = 'Fortalecimiento'
-        else:
+        try:
+            if float(servicio) < 2:
+                dominio = 'Salud'
+            elif float(servicio) > 5 and float(servicio) < 6:
+                dominio = 'Fortalecimiento'
+        except ValueError:
             break
-        if not Elemento(servicio).is_displayed():
+        if not Elemento(SERVICIOS[servicio]).is_displayed():
+            time.sleep(0.5)
             Elemento(DOMINIO[dominio]).click()
         WebDriverWait(driver,10).until(EC.visibility_of(Elemento(SERVICIOS[servicio])))
         Select(Elemento(SERVICIOS[str(servicio)])).select_by_index(1)
         if donante != 'N/A':
-            Select(Elemento(donante[str(servicio)])).select_by_index(int(donante)) 
+            Select(Elemento(DONANTE[str(servicio)])).select_by_index(donante) 
     Elemento(GUARDAR[dominio]).click()
     wait.until(EC.alert_is_present()).accept() # Espera
 
               
-def beneficiario(col): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
+def beneficiario(col,fin): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
     indice = 1
     miembros = '//*[@id="MainContent_cbohhMember"]'
     cantidad = len(Elemento(miembros).find_elements('tag name','option'))-1
@@ -129,12 +132,12 @@ def beneficiario(col): # Hace un recorrido entre los beneficiarios y le va marca
                 else:
                     Select(escuela).select_by_index(3)
                     Select(actividad).select_by_index(3)
-                servir('1.4',6,'5.9',9,'N/A','N/A')
+                servir('1.4',6,'5.9',9,'N/A','N/A','N/A','N/A')
             else:
                 print('Beneficiario salido')  
                 Elemento(dominio).click()           
         indice += 1
-    print('Servicio digitado')
+    print('Servicio ' + str(col) + ' de ' + str(fin) + ' digitado')
 
     # Probar la funcion beneficiarios repetidas veces con familias que tengan beneficiarios salidos
     # y mayores de 18 años para capturar errores.
