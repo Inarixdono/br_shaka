@@ -45,7 +45,7 @@ GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
             'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
             'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
 
-driver = webdriver.Chrome('https://www.google.com/?hl=es',service=Service('driver\chromedriver.exe'))
+driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
 wait = WebDriverWait(driver,10)
 
 def login(): # Iniciar sesion
@@ -138,6 +138,3 @@ def beneficiario(col,fin): # Hace un recorrido entre los beneficiarios y le va m
                 Elemento(dominio).click()           
         indice += 1
     print('Servicio ' + str(col) + ' de ' + str(fin) + ' digitado')
-
-    # Probar la funcion beneficiarios repetidas veces con familias que tengan beneficiarios salidos
-    # y mayores de 18 años para capturar errores.
