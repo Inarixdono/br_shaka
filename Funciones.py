@@ -138,3 +138,9 @@ def beneficiario(col,fin): # Hace un recorrido entre los beneficiarios y le va m
                 Elemento(dominio).click()           
         indice += 1
     print('Servicio ' + str(col) + ' de ' + str(fin) + ' digitado')
+
+# Pulir los tipos de datos de las listas de los datos a digitar, cambiar esos mismos datos en las funciones 
+# que trabajan con ellos.
+
+# Eliminar el diccionario de donantes y anexar cada elemento del mismo como una lista al lado de cada servicio
+# correspondiente en dicho diccionario.
