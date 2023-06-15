@@ -1,4 +1,17 @@
-﻿ID;Hogar;FechaVisita;MotivoVisita;EntregaEn;CuidadorPresen;Idcare;Firma;Serv1;Don1;Serv2;Don2;Serv3;Don3;Serv4;Don4
-0;PU/GRE/CG/0049;25/5/2023;Visita regular;En el hogar;0049/05;f1774a4b-b951-4693-8757-467334b011d9;5;1.4;0;1.4;6;5.9;9;N/A;N/A
-1;PU/GRE/CG/0061;25/5/2023;Visita regular;En el hogar;0061/01;b5ac990a-78e4-433d-9acd-c4acb6210d10;1;1.4;0;1.4;6;5.9;9;N/A;N/A
-2;PU/GRE/CG/0228;25/5/2023;Visita regular;En el hogar;0228/01;bbfd3757-166f-4a75-a998-9c0ca6b58ef4;1;1.4;0;1.4;6;5.9;9;N/A;N/A
+﻿ID;Hogar;FechaVisita;MotivoVisita;EntregaEn;CuidadorPresen;Idcare;Firma;S_GENERAL;D_GENERAL;B_SERVIDO;SERVBEN;D_BENSERV
+0;PU/GRE/CG/0113;7/6/2023;Seguimiento;En el SAI;0113/01;381f3c56-41de-48c1-b3ea-275bcf33c389;1;5.9;9;01;1.9;0
+1;PU/GRE/CG/0066;6/6/2023;Seguimiento;En el SAI;0066/01;ba17ac69-724c-4f09-bb9d-e72f5302aa46;1;5.9;9;1;1.9;0
+2;PU/GRE/CG/0275;1/6/2023;Seguimiento;En el SAI;0275/01;02e993d3-cc24-4237-a8e5-cf273acff674;1;5.9;9;1;1.9;0
+3;PU/GRE/CG/0237;5/6/2023;Seguimiento;En el SAI;0237/01;51e016ed-4d50-4b5d-ba7b-030e509d1cc1;1;0;0;1;1.9;0
+4;PU/GRE/CG/0047;5/6/2023;Seguimiento;En el SAI;0047/01;7661b3c5-7ff3-403d-9b96-efc931ec943d;1;0;0;1;1.9;0
+5;PU/GRE/CG/0212;1/6/2023;Seguimiento;En el SAI;0212/01;bdbb921c-ba84-4a1e-9cf6-4e10fab7e2fe;1;0;0;1;1.9;0
+6;PU/GRE/CG/0242;1/6/2023;Seguimiento;En el SAI;0242/01;887e37fd-dac2-42e9-abfe-d473e9bf7afd;1;0;0;1;1.9;0
+7;PU/GRE/CG/0205;1/6/2023;Seguimiento;En el SAI;0205/01;1845ecd8-25fa-4a6a-9e8b-aa1c4287405d;1;0;0;1;1.9;0
+8;PU/GRE/CG/0220;1/6/2023;Seguimiento;En el SAI;0220/01;e2323cc1-4e59-4fb6-b892-e52d886244c9;1;0;0;1;1.9;0
+9;PU/GRE/CG/0188;2/6/2023;Seguimiento;En el SAI;0188/01;ab85fe92-97f7-4826-ab50-5c0b9e814528;1;0;0;1;1.9;0
+10;PU/GRE/CG/0199;6/6/2023;Seguimiento;En el SAI;0199/01;c565827a-cbc8-4b0f-ab3f-4e1310efff3f;1;0;0;1;1.9;0
+11;PU/GRE/CG/0050;7/6/2023;Seguimiento;En el SAI;0050/01;c784b34a-efc4-4be4-828f-1c1e5dd4d3dd;1;0;0;2;1.9;0
+12;PU/GRE/CG/0091;7/6/2023;Seguimiento;En el SAI;0091/01;9634473a-1bf5-44d2-b612-ccb4ac8c9b9b;1;0;0;1;1.9;0
+13;PU/GRE/CG/0148;5/6/2023;Seguimiento;En el SAI;0148/02;0298c857-1baf-44cb-8df2-61526b3d622f;2;0;0;2;1.9;0
+14;PU/GRE/CG/0166;7/6/2023;Seguimiento;En el SAI;0166/02;f5da9351-1453-40c3-8f37-b1d8bbfd7600;2;0;0;2;1.9;0
+15;PU/GRE/CG/0176;22/5/2023;Visita regular;En el hogar;0176/01;e96501d6-057d-4e4f-b8e9-46965f3a2e9f;1;5.9;9;0;0;0

@@ -13,40 +13,26 @@ from datetime import datetime
 
 # Datos
 
-fam_salidas = pd.read_csv('Archivos\FamSalidas.csv', delimiter = ';', index_col = 'Hogar')['ID'].tolist()
-ben_salidos = pd.read_csv('Archivos\BenSalidos.csv', delimiter = ';', index_col = 'Ben')['ID'].tolist()
-XPATH = pd.read_csv('Archivos\XPATH.csv', delimiter = ";", index_col = "ID",)['xPath'].tolist()
-HOGAR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Hogar'].tolist()
-FECHA = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['FechaVisita'].tolist()
-MOTIVO = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['MotivoVisita'].tolist()
-LUGAR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['EntregaEn'].tolist()
-CUIDADOR = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Idcare'].tolist()
-SERV1 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv1'].tolist()
-SERV2 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv2'].tolist()
-SERV3 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv3'].tolist()
-SERV4 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Serv4'].tolist()
-DNR1 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don1'].tolist()
-DNR2 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don2'].tolist()
-DNR3 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don3'].tolist()
-DNR4 = pd.read_csv('Archivos\Servir.csv', delimiter = ";", index_col = "ID",)['Don4'].tolist()
+def lista(columna, nombre = 'Servir', index='ID'):
+    lista = pd.read_csv('Archivos\\'+ nombre +'.csv',delimiter=';', index_col= index, dtype= str)[columna].tolist()
+    return(lista)
 
-SERVICIOS = {'1.9':'//*[@id="MainContent_cboyn_art_retention"]',
-             '1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution"]',
-             '5.9':'//*[@id="MainContent_cboFoodDeliveryservice"]',
-             '1.2':'//*[@id="MainContent_cboyn_wash"]'}
+XPATH = lista('xPath','XPATH')
+HOGAR = lista('Hogar')
+driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
+wait = WebDriverWait(driver,10)
 
-DONANTE = {'1.4':'//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]',
-           '5.9':'//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'}
+SERVICIOS = {'1.9':['//*[@id="MainContent_cboyn_art_retention"]'],
+             '1.4':['//*[@id="MainContent_cboOtherWashMaterialDistribution"]','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]'],
+             '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
+             '1.2':['//*[@id="MainContent_cboyn_wash"]']}
 
 DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
            'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
 
 GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
-            'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
-            'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
-
-driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
-wait = WebDriverWait(driver,10)
+           'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
+           'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
 
 def login(): # Iniciar sesion
     driver.get("https://pactbrmis.org/Account/Login.aspx")
@@ -58,26 +44,34 @@ def Elemento(ruta):
     Elemento = driver.find_element('xpath',ruta)
     return(Elemento)
 
-def encabezado(col): 
+def Seleccionar(ruta,valor='',por='index'):
+    Seleccionar = Select(Elemento(ruta))
+    if por == 'index':
+        Seleccionar.select_by_index(valor)
+    elif por == 'valor':
+        Seleccionar.select_by_value(valor)
+    return(Seleccionar)
+
+def encabezado(fila): 
 
     # Entra al formulario de entrada de servicios
     driver.get("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
     # Selecciona el hogar y asigna la fecha
     Elemento(XPATH[0]).click() 
-    Elemento(XPATH[1]).send_keys(HOGAR[col], Keys.ENTER)
-    set_fecha = datetime.strptime(FECHA[col], '%d/%m/%Y')
+    Elemento(XPATH[1]).send_keys(HOGAR[fila], Keys.ENTER)
+    set_fecha = datetime.strptime(lista('FechaVisita')[fila], '%d/%m/%Y')
     fecha = set_fecha.strftime('%d/%m/%Y')
     ctrl.copy(fecha)
     Elemento(XPATH[2]).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
 
     # Motivo y lugar de visita
-    Select(Elemento(XPATH[3])).select_by_visible_text(MOTIVO[col])      
-    Select(Elemento(XPATH[4])).select_by_visible_text(LUGAR[col])
+    Select(Elemento(XPATH[3])).select_by_visible_text(lista('MotivoVisita')[fila])      
+    Select(Elemento(XPATH[4])).select_by_visible_text(lista('EntregaEn')[fila])
 
     # Firma
     Select(Elemento(XPATH[5])).select_by_visible_text("Si") 
-    Select(Elemento(XPATH[6])).select_by_value(CUIDADOR[col]) 
+    Select(Elemento(XPATH[6])).select_by_value(lista('Idcare')[fila]) 
     time.sleep(1) #TODO: MEJORAR ESTA ESPERA
     Select(Elemento(XPATH[7])).select_by_visible_text("Si") 
     
@@ -85,62 +79,65 @@ def encabezado(col):
     Elemento(GUARDAR['Encabezado']).click()
     wait.until(EC.alert_is_present()).accept() 
 
-def servir(*parametros):
-    for i in range(0, len(parametros), 2):
-        servicio, donante = parametros[i:i+2]
+def servir(servicios, donantes, guardar = True):
+    for i in range(len(servicios)):
         try:
-            if float(servicio) < 2:
+            if 1 < float(servicios[i]) < 2:
                 dominio = 'Salud'
-            elif float(servicio) > 5 and float(servicio) < 6:
+            elif 5 < float(servicios[i]) < 6:
                 dominio = 'Fortalecimiento'
         except ValueError:
             break
-        if not Elemento(SERVICIOS[servicio]).is_displayed():
+        if not Elemento(SERVICIOS[servicios[i]][0]).is_displayed():
             time.sleep(0.5)
             Elemento(DOMINIO[dominio]).click()
-        WebDriverWait(driver,10).until(EC.visibility_of(Elemento(SERVICIOS[servicio])))
-        Select(Elemento(SERVICIOS[str(servicio)])).select_by_index(1)
-        if donante != 'N/A':
-            Select(Elemento(DONANTE[str(servicio)])).select_by_index(donante) 
-    Elemento(GUARDAR[dominio]).click()
-    wait.until(EC.alert_is_present()).accept() # Espera
+        wait.until(EC.visibility_of(Elemento(SERVICIOS[servicios[i]][0])))
+        Seleccionar(SERVICIOS[servicios[i]][0],1)
+        if donantes[i] != '0':
+            Seleccionar(SERVICIOS[servicios[i]][1],donantes[i])
+    if guardar:
+        Elemento(GUARDAR[dominio]).click()
+        wait.until(EC.alert_is_present()).accept() # Espera
 
-              
-def beneficiario(col,fin): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
-    indice = 1
-    miembros = '//*[@id="MainContent_cbohhMember"]'
-    cantidad = len(Elemento(miembros).find_elements('tag name','option'))-1
-    while indice <= cantidad: 
-        dominio = DOMINIO['Salud']
-        servicio = SERVICIOS['1.4']
-        Elemento(dominio).click()
-        WebDriverWait(driver,10).until(EC.visibility_of(Elemento(servicio)))
-        Select(Elemento(miembros)).select_by_index(indice)
+def beneficiario(fila): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
+
+    servicio_general = lista('S_GENERAL')[fila].split(' ')
+    donante_general = lista('D_GENERAL')[fila].split(' ')
+    servido_individual = lista('B_SERVIDO')[fila].split(' ')
+    servicio_individual = lista('SERVBEN')[fila].split(' ')
+    donante_individual = lista('D_BENSERV')[fila].split(' ')
+
+    for indice in range(1, len(Seleccionar(XPATH[8],por='').options)): 
+        Elemento(DOMINIO['Salud']).click()
+        wait.until(EC.visibility_of(Elemento(SERVICIOS['1.4'][0])))
+        Seleccionar(XPATH[8],indice)
         try:
-            WebDriverWait(driver,10).until(EC.invisibility_of_element(Elemento(servicio)))  
+            wait.until(EC.invisibility_of_element(Elemento(SERVICIOS['1.4'][0])))  
         except UnexpectedAlertPresentException:
-            print("Beneficiario tiene 21 años")   
+            print("Beneficiario tiene 21 años")       
         else:
-            edad = driver.find_element('xpath','//*[@id="MainContent_txtAge"]').get_attribute("value")
-            escuela = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledInSchool"]')
-            actividad = driver.find_element('xpath','//*[@id="MainContent_cboEnrolledEconomicActivity"]')
-            flag = Elemento(miembros).get_attribute('value') in ben_salidos    
-            if not flag: # Quité la comparación de la bandera con "False"       
-                if int(edad) > 17 and int(edad) < 21:
-                    Select(escuela).select_by_index(1)
-                    Select(actividad).select_by_index(2)
+                    # Comprueba si el beneficiario esta activo
+            if not Elemento(XPATH[8]).get_attribute('value') in lista('ID','BenSalidos','Ben'): 
+                    
+                    # Comprueba la edad del beneficiario
+                if int(Elemento(XPATH[9]).get_attribute('value')) in range(17, 21): 
+                    Seleccionar(XPATH[10],1)
+                    Seleccionar(XPATH[11],2)
                 else:
-                    Select(escuela).select_by_index(3)
-                    Select(actividad).select_by_index(3)
-                servir('1.4',6,'5.9',9,'N/A','N/A','N/A','N/A')
+                    Seleccionar(XPATH[10],3)
+                    Seleccionar(XPATH[11],3)
+
+                    # Comprueba si el hogar recibe algun servicio individua   
+                if str(servicio_individual[0]) != '0':
+                    if Elemento(XPATH[8]).text.splitlines()[indice][-2:] in servido_individual:
+                        servir(servicio_individual,donante_individual, servicio_general[0] == '0')
+                
+                if str(servicio_general[0]) != '0': servir(servicio_general, donante_general)
+                
             else:
                 print('Beneficiario salido')  
-                Elemento(dominio).click()           
-        indice += 1
-    print('Servicio ' + str(col) + ' de ' + str(fin) + ' digitado')
+                Elemento(DOMINIO['Salud']).click()           
 
-# Pulir los tipos de datos de las listas de los datos a digitar, cambiar esos mismos datos en las funciones 
-# que trabajan con ellos.
 
-# Eliminar el diccionario de donantes y anexar cada elemento del mismo como una lista al lado de cada servicio
-# correspondiente en dicho diccionario.
+# Solo esta funcionando adecuadamente cuando el hogar cuenta con un servicio general o el servicio individula
+# es aplicado al primer beneficiario
