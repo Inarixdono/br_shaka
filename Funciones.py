@@ -22,6 +22,12 @@ HOGAR = lista('Hogar')
 driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
 wait = WebDriverWait(driver,10)
 
+def login(): # Iniciar sesion
+    driver.get("https://pactbrmis.org/Account/Login.aspx")
+    driver.find_element('xpath','//*[@id="txtUsername"]').send_keys("jenielwtf@gmail.com")
+    driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
+    driver.find_element('xpath','//*[@id="btnLogin"]').click()   
+
 SERVICIOS = {'1.9':['//*[@id="MainContent_cboyn_art_retention"]'],
              '1.4':['//*[@id="MainContent_cboOtherWashMaterialDistribution"]','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]'],
              '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
@@ -34,12 +40,6 @@ GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
            'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
            'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
 
-def login(): # Iniciar sesion
-    driver.get("https://pactbrmis.org/Account/Login.aspx")
-    driver.find_element('xpath','//*[@id="txtUsername"]').send_keys("jenielwtf@gmail.com")
-    driver.find_element('xpath','//*[@id="txtPassword"]').send_keys("1qazxsw2")
-    driver.find_element('xpath','//*[@id="btnLogin"]').click()   
-
 def Elemento(ruta):
     Elemento = driver.find_element('xpath',ruta)
     return(Elemento)
@@ -50,6 +50,8 @@ def Seleccionar(ruta,valor='',por='index'):
         Seleccionar.select_by_index(valor)
     elif por == 'valor':
         Seleccionar.select_by_value(valor)
+    elif por == 'texto':
+        Seleccionar.select_by_visible_text(valor)
     return(Seleccionar)
 
 def encabezado(fila): 
