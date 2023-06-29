@@ -20,45 +20,54 @@ class Servicio(Mis):
 
         self.HOGAR = self.lista('Hogar')
         self.XPATH = self.lista('xPath','XPATH')
-
-        self.SERVICIOS = {'1.9':['//*[@id="MainContent_cboyn_art_retention"]'],
-                          '1.10':['//*[@id="MainContent_cboyn_initiate_hts_refereal"]'],
-                        '1.38':['//*[@id="MainContent_cboCovid19Education"]'],
-                        '1.4':['//*[@id="MainContent_cboOtherWashMaterialDistribution"]','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]'],
-                        '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
-                        '1.2':['//*[@id="MainContent_cboyn_wash"]']}
-
-        self.DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
-                'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
-
-        self.GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
-                'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
-                'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
-        
         super().__init__()
 
     def lista(self, columna, nombre = 'Servir', index='ID'):
         lista = pd.read_csv('Archivos\\'+ nombre +'.csv',delimiter=';', index_col= index, dtype= str)[columna].tolist()
         return(lista)
     
+    def return_service(service: str):
+
+        SERVICIOS = {'1.9':['//*[@id="MainContent_cboyn_art_retention"]'],
+                    '1.10':['//*[@id="MainContent_cboyn_initiate_hts_refereal"]'],
+                    '1.38':['//*[@id="MainContent_cboCovid19Education"]'],
+                    '1.40':['//*[@id="MainContent_cboOtherWashMaterialDistribution"]','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]'],
+                    '2.4':['//*[@id="MainContent_cboyn_community_homework"]'],
+                    '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
+                    '1.2':['//*[@id="MainContent_cboyn_wash"]']}
+
+        DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
+                'Educación':'//*[@id="MainContent_mainPanal"]/a[4]',
+                'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
+
+        GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
+                    'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
+                    'Educación':'//*[@id="MainContent_btnsaveEducation"]',
+                    'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
+        
+        if 1 < float(service) < 2:
+            dominio = 'Salud'
+        elif 2 < float(service) < 3:
+            dominio = 'Educación'
+        elif 5 < float(service) < 6:
+            dominio = 'Fortalecimiento'
+
+        return SERVICIOS[service], DOMINIO[dominio], GUARDAR[dominio]
+    
     def servir(self, servicios, donantes, guardar = True):
         for i in range(len(servicios)):
-            try:
-                if 1 < float(servicios[i]) < 2:
-                    dominio = 'Salud'
-                elif 5 < float(servicios[i]) < 6:
-                    dominio = 'Fortalecimiento'
-            except ValueError:
-                break
-            if not self.elemento(self.SERVICIOS[servicios[i]][0]).is_displayed():
+            
+            servicio = self.return_service(servicios[i])
+
+            if not self.elemento(servicio[0][0]).is_displayed():
                 time.sleep(0.5)
-                self.elemento(self.DOMINIO[dominio]).click()
-            self.wait.until(EC.visibility_of(self.elemento(self.SERVICIOS[servicios[i]][0])))
-            self.seleccionar(self.SERVICIOS[servicios[i]][0],1)
+                self.elemento(servicio[1]).click()
+            self.wait.until(EC.visibility_of(self.elemento(servicio[0][0])))
+            self.seleccionar(servicio[0][0],1)
             if donantes[i] != '0':
-                self.seleccionar(self.SERVICIOS[servicios[i]][1],donantes[i])
+                self.seleccionar(servicio[0][1],donantes[i])
         if guardar:
-            self.elemento(self.GUARDAR[dominio]).click()
+            self.elemento(servicio[2]).click()
             self.esperar_alerta() # Espera
 
     def encabezado(self, fila): 
@@ -103,18 +112,22 @@ class Servicio(Mis):
             individual = (beneficiario[-2:] in self.lista('B_SERVIDO')[fila].split(' '))
 
             if not servir_general:
-                if individual:
-                    seleccionado = beneficiario
+
+                if individual: seleccionado = beneficiario
                 else: continue
+
             else: seleccionado = beneficiario
 
-            self.elemento(self.DOMINIO['Salud']).click()
-            self.wait.until(EC.visibility_of(self.elemento(self.SERVICIOS['1.4'][0])))
+            self.elemento(self.return_service('1.9')[1]).click()
+            time.sleep(0.5)
             self.seleccionar(self.XPATH[8], seleccionado , 'texto')
 
-            try: self.wait.until(EC.invisibility_of_element(self.elemento(self.SERVICIOS['1.4'][0])))  
+            try: self.wait.until(EC.invisibility_of_element(self.elemento(self.return_service('1.9')[0][0])))
 
-            except UnexpectedAlertPresentException: print("Beneficiario tiene 21 años")       
+            except UnexpectedAlertPresentException: 
+                print("Beneficiario tiene 21 años")
+                self.elemento(self.return_service('1.9')[1]).click()  
+                time.sleep(0.6) 
 
             else:
                     # Comprueba si el beneficiario esta activo
@@ -132,8 +145,10 @@ class Servicio(Mis):
                     if str(servicio_individual[0]) != '0' and individual: 
                         self.servir(servicio_individual, self.lista('D_BENSERV')[fila].split(' '), not servir_general)
                     
-                    if servir_general: self.servir(servicio_general, self.lista('D_GENERAL')[fila].split(' '))
+                    if servir_general: 
+                        self.servir(servicio_general, self.lista('D_GENERAL')[fila].split(' '))
                     
                 else:
                     print('Beneficiario salido')  
-                    self.elemento(self.DOMINIO['Salud']).click()     
+                    self.elemento(self.return_service('1.9')[1]).click() 
+                    time.sleep(0.6) 

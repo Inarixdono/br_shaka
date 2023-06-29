@@ -5,6 +5,8 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
+from datetime import datetime
+import pyperclip as ctrl
 
 """
 
@@ -18,11 +20,11 @@ from selenium.webdriver.common.alert import Alert
 from selenium.common.exceptions import TimeoutException
 from selenium.common.exceptions import UnexpectedAlertPresentException
 import time
-from datetime import datetime
 """ 
 
 class Mis:
     def __init__(self):
+        self.hoy = datetime.now().strftime('%d/%m/%Y')
         self.driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
         self.wait = WebDriverWait(self.driver,10)
         self.driver.get("https://pactbrmis.org/Account/Login.aspx")
@@ -39,6 +41,18 @@ class Mis:
     def elemento(self, ruta):
         elemento = self.driver.find_element('xpath',ruta)
         return(elemento)
+    
+    def enviar_fecha(self,ruta, fecha, permite_entrada = False):
+
+        if len(fecha) <= 2: fecha = datetime.strptime(fecha + self.hoy[2:], '%d/%m/%Y').strftime('%d/%m/%Y')
+        elif len(fecha) <= 5: fecha = datetime.strptime(fecha + self.hoy[5:], '%d/%m/%Y').strftime('%d/%m/%Y')
+        elif len(fecha) <= 8: fecha = datetime.strptime(fecha, '%d/%m/%y').strftime('%d/%m/%Y')
+        else: fecha = datetime.strptime(fecha, '%d/%m/%Y').strftime('%d/%m/%Y')
+
+        if permite_entrada: self.elemento(ruta).send_keys(fecha)
+        else: 
+            ctrl.copy(fecha)
+            self.elemento(ruta).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
 
     def seleccionar(self,ruta,valor='',por='index'):
         seleccionar = Select(self.elemento(ruta))

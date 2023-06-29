@@ -1,3 +1,5 @@
-**/.Driver
-**/.Archivos
-**/.__pycache__
+/Driver
+/Archivos
+/__pycache__
+testing.ipybn
+libreria.py
