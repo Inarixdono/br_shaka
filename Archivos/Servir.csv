@@ -1,4 +1,21 @@
-﻿ID;Hogar;FechaVisita;MotivoVisita;EntregaEn;CuidadorPresen;Idcare;Firma;Serv1;Don1;Serv2;Don2;Serv3;Don3;Serv4;Don4
-0;PU/GRE/CG/0049;25/5/2023;Visita regular;En el hogar;0049/05;f1774a4b-b951-4693-8757-467334b011d9;5;1.4;0;1.4;6;5.9;9;N/A;N/A
-1;PU/GRE/CG/0061;25/5/2023;Visita regular;En el hogar;0061/01;b5ac990a-78e4-433d-9acd-c4acb6210d10;1;1.4;0;1.4;6;5.9;9;N/A;N/A
-2;PU/GRE/CG/0228;25/5/2023;Visita regular;En el hogar;0228/01;bbfd3757-166f-4a75-a998-9c0ca6b58ef4;1;1.4;0;1.4;6;5.9;9;N/A;N/A
+﻿ID;Hogar;FechaVisita;MotivoVisita;EntregaEn;CuidadorPresen;Idcare;Firma;S_GENERAL;D_GENERAL;B_SERVIDO;SERVBEN;D_BENSERV
+0;PU/GRE/CG/0320;26/6/2023;Seguimiento;En el hogar;0320/01;8d231fd9-4685-464b-a9e1-7db18fcc137c;1;1.2 1.38 5.9;0 0 2;0;0;0
+1;PU/GRE/CG/0070;30/6/2023;Seguimiento;En el hogar;0070/02;e069d11c-5e65-4ba3-ba65-8bc1adce2860;2;5.11;2;0;0;0
+2;PU/GRE/CG/0283;30/6/2023;Seguimiento;En el hogar;0283/01;f8c71a6e-498f-40e4-a971-865a2bad5eb4;1;5.11;2;0;0;0
+3;PU/GRE/CG/0203;30/6/2023;Seguimiento;En el hogar;0203/01;e94f1520-8ef4-4511-a8ec-5083b848431c;1;5.11;2;0;0;0
+4;PU/GRE/CG/0295;30/6/2023;Seguimiento;En el hogar;0295/01;7d824e1d-9db7-4658-a783-9fab5f93fffc;1;5.11;2;0;0;0
+5;PU/GRE/CG/0171;30/6/2023;Seguimiento;En el hogar;0171/01;5007e9af-6262-423e-98e1-0fc49750d756;1;5.11;2;0;0;0
+6;PU/GRE/CG/0106;30/6/2023;Seguimiento;En el hogar;0106/02;77c51c15-e6a1-4fef-b5bd-9bb349469be4;2;5.11;2;0;0;0
+7;PU/GRE/CG/0210;30/6/2023;Seguimiento;En el hogar;0210/01;99e4457f-dc39-440d-9b81-7a19994aff4f;1;5.11;2;0;0;0
+8;PU/GRE/CG/0253;30/6/2023;Seguimiento;En el hogar;0253/01;6d30fed4-850e-4080-8a82-89ff042e1419;1;5.11;2;0;0;0
+9;PU/GRE/CG/0148;30/6/2023;Seguimiento;En el hogar;0148/01;544b8ff7-f2df-4584-8c9d-fe746daea693;1;5.11;2;0;0;0
+10;PU/GRE/CG/0234;30/6/2023;Seguimiento;En el hogar;0234/01;61473b6d-0f2c-4a8e-a8f3-eaffe88cee60;1;5.11;2;0;0;0
+11;PU/GRE/CG/0040;30/6/2023;Seguimiento;En el hogar;0040/01;2dfcd22d-1e57-48ae-ab25-338f0960370e;1;5.11;2;0;0;0
+12;PU/GRE/CG/0300;30/6/2023;Seguimiento;En el hogar;0300/01;8479d197-d10b-4aec-8284-e72962bc7719;1;5.11;2;0;0;0
+13;PU/GRE/CG/0265;30/6/2023;Seguimiento;En el hogar;0265/02;2bd6129c-7a32-4378-bdc1-0081eebbb548;2;5.11;2;0;0;0
+14;PU/GRE/CG/0065;30/6/2023;Seguimiento;En el hogar;0065/01;8f7f3866-2286-4238-9a04-fa0c5401c2c4;1;5.11;2;0;0;0
+15;PU/GRE/CG/0283;27/6/2023;Seguimiento;En el hogar;0283/01;f8c71a6e-498f-40e4-a971-865a2bad5eb4;1;0;0;01;1.9;0
+16;PU/GRE/CG/0228;27/6/2023;Seguimiento;En el hogar;0228/01;bbfd3757-166f-4a75-a998-9c0ca6b58ef4;1;0;0;01;1.9;0
+17;PU/GRE/CG/0254;27/6/2023;Seguimiento;En el hogar;0254/01;89534233-c46a-498f-8704-fffda132b9b8;1;5.9;9;01;1.9;0
+18;PU/GRE/CG/0016;29/6/2023;Seguimiento;En el hogar;0016/01;26e19b20-4b58-415f-8870-3a8e97b31b62;1;0;0;02;2.4;0
+19;PU/GRE/CG/0016;30/6/2023;Seguimiento;En el hogar;0016/01;26e19b20-4b58-415f-8870-3a8e97b31b62;1;0;0;02;2.4;0
