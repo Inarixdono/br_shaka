@@ -1,16 +1,7 @@
 # Funciones externas a las clases del MIS
 
-from datetime import datetime
+from pandas import read_csv
 
-class Herramienta:
-
-    def format_fecha(fecha, from_csv = False):
-        if not from_csv:
-            if len(fecha) <= 5:
-                fecha = datetime.strptime(fecha + '/23', '%d/%m/%y').strftime('%d/%m/%Y')
-            else:
-                fecha = datetime.strptime(fecha, '%d/%m/%y').strftime('%d/%m/%Y')
-            return fecha
-        else:
-            fecha = datetime.strptime(fecha, '%d/%m/%Y').strftime('%d/%m/%Y')
-            return fecha
+def lista(columna, nombre = 'Servir', index='ID'):
+    lista = read_csv(f'Archivos\{nombre}.csv',delimiter=';', index_col= index, dtype= str)[columna].tolist()
+    return lista
