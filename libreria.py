@@ -5,7 +5,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from funciones import lista
+from funciones import lista, regular_answers as ra, Database as db
 from datetime import datetime
 import pyperclip as ctrl
 from credentials import USER, PASS
@@ -57,6 +57,7 @@ class Mis:
         else: 
             ctrl.copy(fecha)
             self.elemento(ruta).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
+        return datetime.strptime(fecha, '%d/%m/%Y').strftime('%Y-%m-%d')
 
     def seleccionar(self,ruta,valor='',por='index'):
 
@@ -202,3 +203,72 @@ class Graduate(Mis):
             for b in range(beneficiarios):
                 for p in range(4):
                     self.seleccionar(self.format_preguntas(b)[p], 1)
+
+class Adherencia(Mis):
+    def __init__(self):
+        self.adherencia = db('adherencia')
+        self.campos = 'id_vih, fecha_adherencia, abandono, razon, proxima_cita, fecha_cv, resultado_cv'
+        super().__init__()
+
+    def entrar_datos(self):
+        
+        self.acceder('https://pactbrmis.org/DataEntry/adherence.aspx')
+        fecha_adherencia = self.enviar_fecha('//*[@id="MainContent_txtAdherenceDate"]',input('Fecha actual'))
+        hogar = input('Código del hogar')
+        self.seleccionar_hogar('//*[@id="select2-MainContent_cboHHList-container"]', hogar)
+        beneficiario = input("Beneficiario")
+        self.seleccionar_hogar('//*[@id="select2-MainContent_cboHHMember-container"]',f'{hogar}/{beneficiario}')
+        beneficiario = self.elemento('//*[@id="select2-MainContent_cboHHMember-container"]').get_attribute('title').split(' ')[0]
+        edad = input('Edad')
+        self.elemento('//*[@id="MainContent_txtAgeYear"]').send_keys(edad)
+        abandono = edad[-1:] == 'a'
+        self.seleccionar('//*[@id="MainContent_cboFirstAssessment"]', 2)
+
+        if abandono:
+            r_abandono = 'Si'
+            proxima_cita = 'No sabe'
+            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 1)
+            self.esperar_recarga('//*[@id="MainContent_cboMissedClinicAppointment"]')
+            self.seleccionar('//*[@id="MainContent_cboPlwhMember"]', 2)
+            self.elemento('//*[@id="MainContent_chkArtVisitDateDontKnow"]').click()
+            self.seleccionar('//*[@id="MainContent_cboAmId"]', 1)
+            dias = input('Dias sin tomar medicamentos')
+            self.elemento('//*[@id="MainContent_txtArtMissedDays"]').send_keys(dias)
+            r = input('Razon por la que deja de tomar ARV')
+            self.elemento(f'//*[@id="MainContent_cblArtMissedReason_{r}"]').click()
+            if r == '9':
+                razon = ra(input('Especificar razon'))
+                self.elemento('//*[@id="MainContent_txtArtMissedReason"]').send_keys(razon)
+            else: razon = input('Especificar razon')
+
+        else: 
+            r_abandono = 'No'
+            razon = 'N/A'
+            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 2)
+            proxima_cita = input("Próxima cita")
+            self.seleccionar('//*[@id="MainContent_cboPlwhMember"]', 1)
+            proxima_cita = self.enviar_fecha('//*[@id="MainContent_txtArtVisitDate"]', proxima_cita)
+            self.seleccionar('//*[@id="MainContent_cboAmId"]', 2)
+        
+        r = input('Preguntas 13 y 14')
+        self.seleccionar('//*[@id="MainContent_cboArtTillNextAppointment"]', r[0])
+        self.seleccionar('//*[@id="MainContent_cboAmsId"]', r[1])
+        if r[1] == '4':
+            otro = input('Cuantos meses recibio?')
+            self.elemento('//*[@id="MainContent_txtArtMonthsSupplyOther"]').send_keys(f'{otro} meses')
+        self.seleccionar('//*[@id="MainContent_cboYndkIdEverVLTest"]', 1)
+        fecha_cv = input('Fecha de carga viral')
+        fecha_cv = self.enviar_fecha('//*[@id="MainContent_txtViralTestDate"]', fecha_cv)
+        resultado_cv = input('Resultado de carga viral')
+        self.elemento('//*[@id="MainContent_txtViralTestResult"]').send_keys(resultado_cv, Keys.ENTER)
+        self.esperar_alerta()  
+
+        
+        beneficiario = self.elemento('//*[@id="select2-MainContent_cboHHMember-container"]').get_attribute('title').split(' ')[0]
+
+        values = f'"{self.adherencia.return_id_vih(beneficiario)}", "{fecha_adherencia}", "{r_abandono}",\
+                    "{razon}", "{proxima_cita}", "{fecha_cv}", "{resultado_cv}"'
+        self.adherencia.insert(self.campos, values)
+    
+    
+        
