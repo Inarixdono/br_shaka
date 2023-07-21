@@ -12,12 +12,18 @@ from libreria import Mis
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-from funciones import lista
+from funciones import lista, Database
 
 HOGAR = lista('Hogar')
 XPATH = lista('servicios','XPATH')
+almacen = Database('servicios_shaka')
 
 class Servicio(Mis):
+
+    def __init__(self):
+        self.almacen = Database('servicios_shaka')
+        self.campos = 'id_hogar, fecha_visita, motivo, lugar, servicio_general, donante_general, beneficiarios_servidos, servicio_individual, donante_individual'
+        super().__init__()
 
     def _return_service(self, service: str):
 
@@ -28,7 +34,9 @@ class Servicio(Mis):
                      '2.4':['//*[@id="MainContent_cboyn_community_homework"]'],
                      '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
                      '5.11':['//*[@id="MainContent_cboVocationalTraining"]','//*[@id="MainContent_cboVocationalTraining_dnr"]'],
-                     '1.2':['//*[@id="MainContent_cboyn_wash"]']}
+                     '1.2':['//*[@id="MainContent_cboyn_wash"]'],
+                     '1.6':['//*[@id="MainContent_cboyn_hiv_prevention_edu"]'],
+                     '1.11':['//*[@id="MainContent_cboyn_complete_hts_refereal"]']}
 
         DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
                    'Educación':'//*[@id="MainContent_mainPanal"]/a[4]',
@@ -67,28 +75,37 @@ class Servicio(Mis):
     def encabezado(self, fila): 
 
         # Entra al formulario de entrada de servicios
+        self.valores = ''
         self.acceder("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
         # Selecciona el hogar y asigna la fecha
+        hogar = HOGAR[fila]
         self.elemento(XPATH[0]).click() 
-        self.elemento(XPATH[1]).send_keys(HOGAR[fila], Keys.ENTER)
-        self.enviar_fecha(XPATH[2],lista('FechaVisita')[fila])
+        self.elemento(XPATH[1]).send_keys(hogar, Keys.ENTER)
+        fecha_visita = self.enviar_fecha(XPATH[2],lista('FechaVisita')[fila])
 
         # Motivo y lugar de visita
-        self.seleccionar(XPATH[3], lista('MotivoVisita')[fila], 'texto')
-        self.seleccionar(XPATH[4], lista('EntregaEn')[fila],'texto' )
+        motivo = lista('MotivoVisita')[fila]
+        lugar = lista('EntregaEn')[fila]
+        self.seleccionar(XPATH[3], motivo)
+        self.seleccionar(XPATH[4], lugar)
 
         # Firma
-        self.seleccionar(XPATH[5], 'Si', 'texto')
-        self.seleccionar(XPATH[6], lista('Idcare')[fila], 'valor')
+        self.seleccionar(XPATH[5], 1)
+        self.seleccionar(XPATH[6], lista('Idcare')[fila], 'valor') #TODO: Cambiar metodo de seleccion de cuidador
         self.esperar_recarga(self.elemento(XPATH[6]))
-        self.seleccionar(XPATH[7], 'Si', 'texto')
+        self.seleccionar(XPATH[7], 1)
         
+        # Agregar datos al string
+        self.valores += f'{self.almacen.return_id_hogar(hogar)}, "{fecha_visita}", {motivo}, {lugar}'
+
         # Guarda el encabezado
         self.elemento('//*[@id="MainContent_btnsaveMain"]').click()
         self.esperar_alerta() 
 
     def rotar_beneficiario(self, fila): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
+
+        self.valores += f', "{lista("S_GENERAL")[fila]}", "{lista("D_GENERAL")[fila]}", "{lista("B_SERVIDO")[fila]}", "{lista("SERVBEN")[fila]}", "{lista("D_BENSERV")[fila]}"'
 
         servicio_general = lista('S_GENERAL')[fila].split(' ')
         servicio_individual = lista('SERVBEN')[fila].split(' ')
@@ -136,3 +153,6 @@ class Servicio(Mis):
                     
                 else:
                     print('Beneficiario salido')
+    
+    def guardar_registro(self):
+        self.almacen.insert(self.campos, self.valores)

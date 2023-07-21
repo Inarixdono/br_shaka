@@ -24,6 +24,10 @@ class Database():
                             INNER JOIN beneficiario ON vih.id_beneficiario = beneficiario.id_beneficiario\
                             WHERE beneficiario.codigo_unico = "{value}"')
         return self.cursor.fetchone()[0]
+    
+    def return_id_hogar(self, value):
+        self.cursor.execute(f'SELECT id_hogar FROM hogar WHERE	hogar = "{value}"')
+        return self.cursor.fetchone()[0]
 
     def insert(self, campos, values):
         self.cursor.execute(f'INSERT INTO {self.table}({campos}) VALUES({values})')

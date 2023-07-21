@@ -212,7 +212,6 @@ class Graduate(Mis):
 class Adherencia(Mis):
     def __init__(self):
         self.adherencia = db('adherencia')
-        #self.campos = 'id_vih, fecha_adherencia, abandono, razon, proxima_cita, fecha_cv, resultado_cv'
         self.campos = 'id_vih, fecha_adherencia, abandono'
         self.valores = ''
         super().__init__()
