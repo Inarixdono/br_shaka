@@ -12,7 +12,8 @@ from libreria import Mis
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
-from funciones import lista, Database
+from funciones import lista
+from database import Database
 
 HOGAR = lista('Hogar')
 XPATH = lista('servicios','XPATH')
@@ -156,3 +157,5 @@ class Servicio(Mis):
     
     def guardar_registro(self):
         self.almacen.insert(self.campos, self.valores)
+
+#TODO: cambiar el metodo de seleccionar al cuidador que firma el formulario.

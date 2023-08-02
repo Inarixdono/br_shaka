@@ -1,11 +1,11 @@
-
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from funciones import lista, regular_answers as ra, Database as db
+from funciones import lista, regular_answers as ra
+from database import Database
 from datetime import datetime
 import pyperclip as ctrl
 from credentials import USER, PASS
@@ -58,6 +58,9 @@ class Mis:
             ctrl.copy(fecha)
             self.elemento(ruta).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
         return datetime.strptime(fecha, '%d/%m/%Y').strftime('%Y-%m-%d')
+    
+    def send_keys(self, path, value):
+        self.elemento(path).send_keys(value)
     
     def enviar_otro(self,ruta,ruta_otro,valor):
         self.elemento(ruta).click()
@@ -211,7 +214,7 @@ class Graduate(Mis):
 
 class Adherencia(Mis):
     def __init__(self):
-        self.adherencia = db('adherencia')
+        self.adherencia = Database('adherencia')
         self.campos = 'id_vih, fecha_adherencia, abandono'
         self.valores = ''
         super().__init__()
