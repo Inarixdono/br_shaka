@@ -8,34 +8,43 @@ import mysql.connector as bd
 from credentials import PASS
 
 class Home:
-    id_gestor: int
-    id_hogar: int
-    home_code: str
-
-class HomeMember:
-
-    def __init__(self, argname: str, argender: int):
+    def __init__(self) -> None:
+        self.id_gestor: int
         self.id_hogar: int
-        self.name: str = argname
-        self.gender: int = argender
+        self.home_code: str
+
+class HomeMember(Home):
+
+    def __init__(self, argname: str, argender: int, argage):
+        self.id_hogar: int
+        self.name = argname
+        self.surname = argname
+        self.gender = argender # 1 = M, 2 = F
         self.rol: int
-        self.age: int
+        self.age: int = argage
         self.birth_date: str
         self.member_code: str
+        self.__sname()
+        self.__ssurname()
 
-    def iniciales(self):
-        r = self.name.split(' ')
-        return r[0][0], r[1][0]
+    def __sname(self):
+        self.name = [self.name[0], self.name.split(' ')[0]]
+
+    def __ssurname(self):
+        nsurname = ''
+        ssurname = ''
+        for i in self.surname.split(' ')[1:]:
+            nsurname += i + ' '
+            ssurname += i[0]
+        self.surname = [ssurname, nsurname.rstrip()]
     
 
 class HIVPatient(HomeMember):
-    def __init__(self, argname, argender, argrecord, argfapps, argindex = False):
+    def __init__(self, argname, argender, argage, argrecord, argfapps, argindex = False):
         self.index : bool = argindex
         self.record: str = argrecord
         self.fapps: str = argfapps
-        super().__init__(argname, argender)
-
-
+        super().__init__(argname, argender, argage)
 
 class Database():
     def __init__(self, table):
@@ -45,13 +54,21 @@ class Database():
 
     def return_id_vih(self, value):
         self.cursor.execute(f'SELECT id_vih FROM vih\
-                            INNER JOIN beneficiario ON vih.id_beneficiario = beneficiario.id_beneficiario\
-                            WHERE beneficiario.codigo_unico = "{value}"')
+                              INNER JOIN beneficiario ON vih.id_beneficiario = beneficiario.id_beneficiario\
+                              WHERE beneficiario.codigo_unico = "{value}"')
         return self.cursor.fetchone()[0]
     
     def return_id_hogar(self, value):
         self.cursor.execute(f'SELECT id_hogar FROM hogar WHERE	hogar = "{value}"')
         return self.cursor.fetchone()[0]
+    
+    def return_comunidad(self, value):
+        self.cursor.execute(f"SELECT comunidad.nombre AS 'Comunidad', distrito.nombre AS 'Distrito', municipio.nombre AS 'Municipio', provincia.nombre AS 'Provincia' FROM comunidad\
+                              INNER JOIN distrito ON comunidad.id_distrito = distrito.id_distrito\
+                              INNER JOIN municipio ON distrito.id_municipio = municipio.id_municipio\
+                              INNER JOIN provincia ON municipio.id_provincia = provincia.id_provincia\
+                              WHERE comunidad.nombre = '{value}'")
+        return self.cursor.fetchone()
 
     def insert(self, campos, values):
         self.cursor.execute(f'INSERT INTO {self.table}({campos}) VALUES({values})')

@@ -41,12 +41,13 @@ class Mis:
         self.driver.get(enlace)
         
     def elemento(self, ruta):
-        elemento = self.driver.find_element('xpath',ruta)
-        return(elemento)
-    
+        return self.driver.find_element('xpath',ruta)
+        
     def seleccionar_hogar(self, ruta, hogar):
+        ref = self.elemento(ruta)
         self.elemento(ruta).click()
         self.elemento('/html/body/span/span/span[1]/input').send_keys(hogar, Keys.ENTER)
+        self.esperar_recarga(ref)
 
     def enviar_fecha(self,ruta, fecha, permite_entrada = False):
         if len(fecha) <= 2: fecha = datetime.strptime(fecha + self._hoy[2:], '%d/%m/%Y').strftime('%d/%m/%Y')
@@ -67,19 +68,23 @@ class Mis:
         self.esperar_recarga(self.elemento(ruta))
         self.elemento(ruta_otro).send_keys(valor)
 
-    def seleccionar(self,ruta,valor='',por='index'):
+    def seleccionar(self, ruta, valor = '', por = 'index', wait = False):
+        
+        ref = self.elemento(ruta)
+        seleccionar = Select(ref)
 
-        seleccionar = Select(self.elemento(ruta))
+        match por:
+            case 'index': seleccionar.select_by_index(valor)
+            case 'valor': seleccionar.select_by_value(valor)
+            case 'texto': seleccionar.select_by_visible_text(valor)
+            case _: print('Invalid selection method')
 
-        if por == 'index': seleccionar.select_by_index(valor)
-        elif por == 'valor': seleccionar.select_by_value(valor)
-        elif por == 'texto': seleccionar.select_by_visible_text(valor)
-        return seleccionar
-    
+        if wait: self.esperar_recarga(ref)
+        if valor == '': return seleccionar
+
     def extraer_cantidad(self, ruta):
-        cantidad = len(self.elemento(ruta).find_elements('tag name', 'tr')) - 1
-        return cantidad
-
+        return len(self.elemento(ruta).find_elements('tag name', 'tr')) - 1
+        
     def cerrar(self):
         self.driver.close()
 
@@ -94,8 +99,7 @@ XPATH = lista('graduacion','XPATH')
 class Graduate(Mis): 
 
     def tabla(self, n):
-        tabla = f'//*[@id="MainContent_gvBenchmark{n}"]/tbody'
-        return tabla
+        return f'//*[@id="MainContent_gvBenchmark{n}"]/tbody' 
     
     def format_preguntas(self, n):
         # Para el punto 
