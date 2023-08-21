@@ -6,9 +6,6 @@
 """
 
 from libreria import Mis
-#import time
-#from datetime import datetime
-#import pyperclip as ctrl
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -93,8 +90,12 @@ class Servicio(Mis):
 
         # Firma
         self.seleccionar(XPATH[5], 1)
-        self.seleccionar(XPATH[6], lista('Idcare')[fila], 'valor') #TODO: Cambiar metodo de seleccion de cuidador
-        self.esperar_recarga(self.elemento(XPATH[6]))
+        caregiver = lista('caregiver')[fila]
+        for i in self.seleccionar(XPATH[6], por='').options:
+            if i.text[-7:] == caregiver:
+                i.click()
+                self.esperar_recarga(i)
+                break
         self.seleccionar(XPATH[7], 1)
         
         # Agregar datos al string
@@ -158,4 +159,22 @@ class Servicio(Mis):
     def guardar_registro(self):
         self.almacen.insert(self.campos, self.valores)
 
-#TODO: cambiar el metodo de seleccionar al cuidador que firma el formulario.
+def main():
+
+    sesion = Servicio()
+    familias_servidas = lista('Hogar')
+
+    for i in range(0 , len(familias_servidas)):
+        if not familias_servidas[i] in lista('Hogar','FamSalidas'):
+            sesion.encabezado(i)
+            sesion.rotar_beneficiario(i)
+            print(f'Servicio {i + 1} de {len(familias_servidas)} digitado')
+        elif input('Familia salida, desea continuar?') == 's':
+            sesion.rotar_beneficiario(i)
+        else: print('Familia salida, no servida.')
+        sesion.guardar_registro()
+    
+    sesion.almacen.close_connection()
+    sesion.cerrar()
+
+main()

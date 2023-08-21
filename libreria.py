@@ -4,7 +4,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
-from funciones import lista, regular_answers as ra
+from funciones import lista
 from database import Database
 from datetime import datetime
 import pyperclip as ctrl
@@ -77,10 +77,10 @@ class Mis:
             case 'index': seleccionar.select_by_index(valor)
             case 'valor': seleccionar.select_by_value(valor)
             case 'texto': seleccionar.select_by_visible_text(valor)
+            case '': return seleccionar
             case _: print('Invalid selection method')
 
         if wait: self.esperar_recarga(ref)
-        if valor == '': return seleccionar
 
     def extraer_cantidad(self, ruta):
         return len(self.elemento(ruta).find_elements('tag name', 'tr')) - 1
