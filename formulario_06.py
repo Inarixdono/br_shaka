@@ -2,7 +2,6 @@
     Shaka
     Formulario de servicios
     Inarixdono
-
 """
 
 from libreria import Mis
@@ -34,7 +33,9 @@ class Servicio(Mis):
                      '5.11':['//*[@id="MainContent_cboVocationalTraining"]','//*[@id="MainContent_cboVocationalTraining_dnr"]'],
                      '1.2':['//*[@id="MainContent_cboyn_wash"]'],
                      '1.6':['//*[@id="MainContent_cboyn_hiv_prevention_edu"]'],
-                     '1.11':['//*[@id="MainContent_cboyn_complete_hts_refereal"]']}
+                     '1.11':['//*[@id="MainContent_cboyn_complete_hts_refereal"]'],
+                     '2.6': ['//*[@id="MainContent_cboyn_initiate_literacy_training_support"]'],
+                     '2.7': ['//*[@id="MainContent_cboyn_complete_literacy_training_support"]']}
 
         DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
                    'Educación':'//*[@id="MainContent_mainPanal"]/a[4]',
@@ -164,7 +165,7 @@ def main():
     sesion = Servicio()
     familias_servidas = lista('Hogar')
 
-    for i in range(0 , len(familias_servidas)):
+    for i in range(39 , len(familias_servidas)):
         if not familias_servidas[i] in lista('Hogar','FamSalidas'):
             sesion.encabezado(i)
             sesion.rotar_beneficiario(i)
