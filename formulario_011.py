@@ -52,8 +52,7 @@ class Adherencia(Mis):
                 'O': [14,'No le gusta el SAI'],
                 'X': [15,'Otro']}
 
-            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 1) # Pregunta #4
-            self.esperar_recarga(self.elemento('//*[@id="MainContent_cboMissedClinicAppointment"]'))
+            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 1, wait= True) # Pregunta #4
             self.seleccionar('//*[@id="MainContent_cboHamfId"]', input('Frecuencia de abandono')) # Pregunta #5
             razon = input('Por qué falta a su cita?').upper()
             otro = '//*[@id="MainContent_cblHivAppointmentMissed_15"]'
@@ -66,8 +65,7 @@ class Adherencia(Mis):
             self.campos += ', razon'
             self.valores += f', "Si", "{falta_cita[razon][1]}"'
         else:
-            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 2) # Pregunta #4
-            self.esperar_recarga(self.elemento('//*[@id="MainContent_cboMissedClinicAppointment"]'))
+            self.seleccionar('//*[@id="MainContent_cboMissedClinicAppointment"]', 2, wait = True) # Pregunta #4
             self.valores += ', "No"'  
 
         self.seleccionar('//*[@id="MainContent_cboPlwhMember"]', 1) # Pregunta #7
@@ -87,8 +85,7 @@ class Adherencia(Mis):
 
             self.elemento('//*[@id="MainContent_chkArtVisitDateDontKnow"]').click() # Pregunta #8
             self.esperar_recarga(self.elemento('//*[@id="MainContent_chkArtVisitDateDontKnow"]'))
-            self.seleccionar('//*[@id="MainContent_cboAmId"]', 1) # Pregunta #9
-            self.esperar_recarga(self.elemento('//*[@id="MainContent_cboAmId"]'))
+            self.seleccionar('//*[@id="MainContent_cboAmId"]', 1, wait= True) # Pregunta #9
             self.elemento('//*[@id="MainContent_txtArtMissedDays"]').\
                 send_keys(input('Cuantos dias ha dejado de tomar sus medicamentos')) # Pregunta #10
             
@@ -130,8 +127,7 @@ class Adherencia(Mis):
     def parte3(self): 
         fecha_cv = input('Fecha de carga viral\nSi no se ha hecho cv escribe "no"')
         if fecha_cv != 'no':
-            self.seleccionar('//*[@id="MainContent_cboYndkIdEverVLTest"]', 1) # Pregunta #15
-            self.esperar_recarga(self.elemento('//*[@id="MainContent_cboYndkIdEverVLTest"]'))
+            self.seleccionar('//*[@id="MainContent_cboYndkIdEverVLTest"]', 1, wait= True) # Pregunta #15
             fecha_cv = self.enviar_fecha('//*[@id="MainContent_txtViralTestDate"]', fecha_cv) # Pregunta #16
             resultado_cv = input('Resultado de carga viral')
             self.campos += ', fecha_cv, resultado_cv' 

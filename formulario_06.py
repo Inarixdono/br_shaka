@@ -35,7 +35,8 @@ class Servicio(Mis):
                      '1.6':['//*[@id="MainContent_cboyn_hiv_prevention_edu"]'],
                      '1.11':['//*[@id="MainContent_cboyn_complete_hts_refereal"]'],
                      '2.6': ['//*[@id="MainContent_cboyn_initiate_literacy_training_support"]'],
-                     '2.7': ['//*[@id="MainContent_cboyn_complete_literacy_training_support"]']}
+                     '2.7': ['//*[@id="MainContent_cboyn_complete_literacy_training_support"]'],
+                     '1.8': ['//*[@id="MainContent_cboyn_art_adherence"]']}  # noqa: E501
 
         DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
                    'Educación':'//*[@id="MainContent_mainPanal"]/a[4]',
@@ -61,7 +62,6 @@ class Servicio(Mis):
             servicio = self._return_service(servicios[i])
 
             if not self.elemento(servicio[0][0]).is_displayed():
-                #time.sleep(0.5)
                 self.elemento(servicio[1]).click()
             self.wait.until(EC.visibility_of(self.elemento(servicio[0][0])))
             self.seleccionar(servicio[0][0],1)
@@ -113,10 +113,7 @@ class Servicio(Mis):
         servicio_general = lista('S_GENERAL')[fila].split(' ')
         servicio_individual = lista('SERVBEN')[fila].split(' ')
         servir_general = servicio_general[0] != '0'
-        miembros = list()
-
-        for i in self.seleccionar(XPATH[8],por='').options[1:]:
-            miembros.append(i.text)
+        miembros = [o.text for o in self.seleccionar(XPATH[8], por= '').options[1:]]
 
         for beneficiario in miembros: 
             
@@ -129,9 +126,7 @@ class Servicio(Mis):
 
             else: seleccionado = beneficiario
 
-            self.seleccionar(XPATH[8], seleccionado , 'texto')
-
-            try: self.esperar_recarga(self.elemento(XPATH[8]))
+            try: self.seleccionar(XPATH[8], seleccionado , 'texto', True)
 
             except UnexpectedAlertPresentException: print("Beneficiario tiene 21 años")
 
@@ -165,7 +160,7 @@ def main():
     sesion = Servicio()
     familias_servidas = lista('Hogar')
 
-    for i in range(39 , len(familias_servidas)):
+    for i in range(0 , len(familias_servidas)):
         if not familias_servidas[i] in lista('Hogar','FamSalidas'):
             sesion.encabezado(i)
             sesion.rotar_beneficiario(i)
