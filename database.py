@@ -70,6 +70,10 @@ class Database():
                               WHERE comunidad.nombre = '{value}'")
         return self.cursor.fetchone()
 
+    def service_path(self, code: str):
+        self.cursor.execute(f'SELECT return_service_xpath({code})')
+        return self.cursor.fetchone()[0]
+
     def insert(self, campos, values):
         self.cursor.execute(f'INSERT INTO {self.table}({campos}) VALUES({values})')
         self.commit()
@@ -79,3 +83,5 @@ class Database():
 
     def close_connection(self):
         self.connect.close()
+
+#TODO: COMPROBAR QUE LOS PATH ESTEN FUNCIONANDO CORRECTAMENTE

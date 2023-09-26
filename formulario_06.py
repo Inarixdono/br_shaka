@@ -9,6 +9,7 @@ from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from funciones import lista
+from math import floor
 from database import Database
 
 HOGAR = lista('Hogar')
@@ -24,51 +25,34 @@ class Servicio(Mis):
 
     def _return_service(self, service: str):
 
-        SERVICIOS = {'1.9':['//*[@id="MainContent_cboyn_art_retention"]'],
-                     '1.10':['//*[@id="MainContent_cboyn_initiate_hts_refereal"]'],
-                     '1.38':['//*[@id="MainContent_cboCovid19Education"]'],
-                     '1.40':['//*[@id="MainContent_cboOtherWashMaterialDistribution"]','//*[@id="MainContent_cboOtherWashMaterialDistribution_dnr"]'],
-                     '2.4':['//*[@id="MainContent_cboyn_community_homework"]'],
-                     '5.9':['//*[@id="MainContent_cboFoodDeliveryservice"]','//*[@id="MainContent_cboFoodDeliveryservice_dnr"]'],
-                     '5.11':['//*[@id="MainContent_cboVocationalTraining"]','//*[@id="MainContent_cboVocationalTraining_dnr"]'],
-                     '1.2':['//*[@id="MainContent_cboyn_wash"]'],
-                     '1.6':['//*[@id="MainContent_cboyn_hiv_prevention_edu"]'],
-                     '1.11':['//*[@id="MainContent_cboyn_complete_hts_refereal"]'],
-                     '2.6': ['//*[@id="MainContent_cboyn_initiate_literacy_training_support"]'],
-                     '2.7': ['//*[@id="MainContent_cboyn_complete_literacy_training_support"]'],
-                     '1.8': ['//*[@id="MainContent_cboyn_art_adherence"]']}  # noqa: E501
-
-        DOMINIO = {'Salud':'//*[@id="MainContent_mainPanal"]/a[3]',
-                   'Educación':'//*[@id="MainContent_mainPanal"]/a[4]',
-                   'Fortalecimiento':'//*[@id="MainContent_mainPanal"]/a[7]'}
-
-        GUARDAR = {'Salud':'//*[@id="MainContent_btnsaveHealth"]',
-                   'Fortalecimiento':'//*[@id="MainContent_btnsave"]',
-                   'Educación':'//*[@id="MainContent_btnsaveEducation"]',
-                   'Encabezado':'//*[@id="MainContent_btnsaveMain"]'}
+        int_service: int = floor(float(service))
+        dominium = f'//*[@id="MainContent_mainPanal"]/a[{int_service + 2}]'
         
-        if 1 < float(service) < 2:
-            dominio = 'Salud'
-        elif 2 < float(service) < 3:
-            dominio = 'Educación'
-        elif 5 < float(service) < 6:
-            dominio = 'Fortalecimiento'
+        match int_service:
+            case 1: save = '//*[@id="MainContent_btnsaveHealth"]'
+            case 2: save = '//*[@id="MainContent_btnsaveEducation"]'
+            case 3: save = '//*[@id="MainContent_btnsavePSS"]'
+            case 4: save = '//*[@id="MainContent_btnsaveProtection"]'
+            case 5: save = '//*[@id="MainContent_btnsave"]'
 
-        return SERVICIOS[service], DOMINIO[dominio], GUARDAR[dominio]
+        return self.almacen.service_path(service), dominium, save
     
-    def _servir(self, servicios, donantes, guardar = True):
-        for i in range(len(servicios)):
-            
-            servicio = self._return_service(servicios[i])
+    def _servir(self, services: tuple, donors: tuple, save = True):
 
-            if not self.elemento(servicio[0][0]).is_displayed():
-                self.elemento(servicio[1]).click()
-            self.wait.until(EC.visibility_of(self.elemento(servicio[0][0])))
-            self.seleccionar(servicio[0][0],1)
-            if donantes[i] != '0':
-                self.seleccionar(servicio[0][1],donantes[i])
-        if guardar:
-            self.elemento(servicio[2]).click()
+        for service, donor in zip(services, donors):
+            
+            service_path, dominium_path, save_path = self._return_service(service)
+
+            if not self.elemento(service_path).is_displayed():
+                self.elemento(dominium_path).click()
+            self.wait.until(EC.visibility_of(self.elemento(service_path)))
+            self.seleccionar(service_path, 1)
+
+            if donor != '0':
+                donor_path = service_path[:-2] + '_dnr' + service_path[-2:]
+                self.seleccionar(donor_path, donor)
+        if save:
+            self.elemento(save_path).click()
             self.esperar_alerta() # Espera
 
     def encabezado(self, fila): 
@@ -115,7 +99,7 @@ class Servicio(Mis):
         servir_general = servicio_general[0] != '0'
         miembros = [o.text for o in self.seleccionar(XPATH[8], por= '').options[1:]]
 
-        for beneficiario in miembros: 
+        for beneficiario in miembros:
             
             individual = (beneficiario[-2:] in lista('B_SERVIDO')[fila].split(' '))
 
@@ -132,21 +116,21 @@ class Servicio(Mis):
 
             else:
                     # Comprueba si el beneficiario esta activo
-                if not self.elemento(XPATH[8]).get_attribute('value') in lista('ID','BenSalidos','Ben'): 
+                if not self.elemento(XPATH[8]).get_attribute('value') in lista('ID','BenSalidos','Ben'):
                         
                     # Comprueba la edad del beneficiario
-                    if int(self.elemento(XPATH[9]).get_attribute('value')) in range(17, 21): 
+                    if int(self.elemento(XPATH[9]).get_attribute('value')) in range(17, 21):
                         self.seleccionar(XPATH[10],1)
                         self.seleccionar(XPATH[11],2)
                     else:
                         self.seleccionar(XPATH[10],3)
                         self.seleccionar(XPATH[11],3)
 
-                    # Comprueba si el hogar recibe algun servicio individua   
+                    # Comprueba si el hogar recibe algun servicio individual
                     if str(servicio_individual[0]) != '0' and individual: 
                         self._servir(servicio_individual, lista('D_BENSERV')[fila].split(' '), not servir_general)
 
-                    if servir_general: 
+                    if servir_general:
                         self._servir(servicio_general, lista('D_GENERAL')[fila].split(' '))
                     
                 else:
@@ -173,4 +157,4 @@ def main():
     sesion.almacen.close_connection()
     sesion.cerrar()
 
-main()
+#main()
