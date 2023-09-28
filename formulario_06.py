@@ -157,4 +157,4 @@ def main():
     sesion.almacen.close_connection()
     sesion.cerrar()
 
-#main()
+main()

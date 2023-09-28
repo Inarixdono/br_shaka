@@ -29,7 +29,7 @@ class Adherencia(Mis):
             self.seleccionar('//*[@id="MainContent_cboAtiId"]', 1) # Pregunta #2
             fecha = input('Fecha de inicio de ARV')
             self.enviar_fecha('//*[@id="MainContent_txtArtInitiatedDate"]',fecha) # Pregunta #2b
-        else: self.seleccionar('//*[@id="MainContent_cboFirstAssessment"]', 2) # Pregunta #1
+        else: self.seleccionar('//*[@id="MainContent_cboFirstAssessment"]', 2, wait= True) # Pregunta #1
 
         self.valores += f'{self.adherencia.return_id_vih(beneficiario)},"{fecha_adherencia}"'
 
