@@ -55,7 +55,7 @@ class Mis:
         elif len(fecha) <= 8: fecha = datetime.strptime(fecha, '%d/%m/%y').strftime('%d/%m/%Y')
         else: fecha = datetime.strptime(fecha, '%d/%m/%Y').strftime('%d/%m/%Y') # Debe medir minimo 9
         if permite_entrada: self.elemento(ruta).send_keys(fecha, Keys.ENTER)
-        else: 
+        else: #TODO: ARREGLAR LA CONCATENACIÓN DE DIA, MES Y FECHA; DIVIDIR `_hoy` por propiedades.
             ctrl.copy(fecha)
             self.elemento(ruta).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
         return datetime.strptime(fecha, '%d/%m/%Y').strftime('%Y-%m-%d')
