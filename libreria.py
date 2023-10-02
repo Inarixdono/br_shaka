@@ -6,7 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from funciones import lista
 from database import Database
-from datetime import datetime
+from datetime import datetime, date
 import pyperclip as ctrl
 from credentials import USER, PASS
 
@@ -26,7 +26,7 @@ import time
 
 class Mis:
     def __init__(self):
-        self._hoy = datetime.now().strftime('%d/%m/%Y')
+        self.today = date.today()
         self.driver = webdriver.Chrome(service=Service('driver\chromedriver.exe'))
         self.wait = WebDriverWait(self.driver,10)
         self.driver.get("https://pactbrmis.org/Account/Login.aspx")
@@ -49,16 +49,24 @@ class Mis:
         self.elemento('/html/body/span/span/span[1]/input').send_keys(hogar, Keys.ENTER)
         self.esperar_recarga(ref)
 
-    def enviar_fecha(self,ruta, fecha, permite_entrada = False):
-        if len(fecha) <= 2: fecha = datetime.strptime(fecha + self._hoy[2:], '%d/%m/%Y').strftime('%d/%m/%Y')
-        elif len(fecha) <= 5: fecha = datetime.strptime(fecha + self._hoy[5:], '%d/%m/%Y').strftime('%d/%m/%Y')
-        elif len(fecha) <= 8: fecha = datetime.strptime(fecha, '%d/%m/%y').strftime('%d/%m/%Y')
-        else: fecha = datetime.strptime(fecha, '%d/%m/%Y').strftime('%d/%m/%Y') # Debe medir minimo 9
-        if permite_entrada: self.elemento(ruta).send_keys(fecha, Keys.ENTER)
-        else: #TODO: ARREGLAR LA CONCATENACIÓN DE DIA, MES Y FECHA; DIVIDIR `_hoy` por propiedades.
-            ctrl.copy(fecha)
-            self.elemento(ruta).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
-        return datetime.strptime(fecha, '%d/%m/%Y').strftime('%Y-%m-%d')
+    def enviar_fecha(self, path, date_input, allows_entry = False):
+
+        lenght = len(date_input)
+        
+        match lenght:
+            case 2: date_output = datetime.strptime(f'{date_input}/{self.today.month}/{self.today.year}', '%d/%m/%Y')
+            case 5: date_output = datetime.strptime(f'{date_input}/{self.today.year}', '%d/%m/%Y')
+            case 10: date_output = datetime.strptime(date_input, '%d/%m/%Y')
+
+        mis_format = date_output.strftime('%d/%m/%Y')
+
+        if allows_entry: self.elemento(path).send_keys(mis_format, Keys.ENTER)
+
+        else:
+            ctrl.copy(mis_format)
+            self.elemento(path).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
+
+        return date_output.isoformat().split('T')[0]
     
     def send_keys(self, path, value):
         self.elemento(path).send_keys(value)
