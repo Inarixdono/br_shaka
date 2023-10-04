@@ -1,3 +1,4 @@
+from turtle import home
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.keys import Keys
@@ -40,13 +41,13 @@ class Mis:
     def acceder(self,enlace):
         self.driver.get(enlace)
         
-    def elemento(self, ruta):
-        return self.driver.find_element('xpath',ruta)
+    def elemento(self, path):
+        return self.driver.find_element('xpath', path)
         
-    def seleccionar_hogar(self, ruta, hogar):
-        ref = self.elemento(ruta)
-        self.elemento(ruta).click()
-        self.elemento('/html/body/span/span/span[1]/input').send_keys(hogar, Keys.ENTER)
+    def seleccionar_hogar(self, path, home_code):
+        ref = self.elemento(path)
+        self.elemento(path).click()
+        self.elemento('/html/body/span/span/span[1]/input').send_keys(home_code, Keys.ENTER)
         self.esperar_recarga(ref)
 
     def enviar_fecha(self, path, date_input, allows_entry = False):
@@ -57,6 +58,7 @@ class Mis:
             case 2: date_output = datetime.strptime(f'{date_input}/{self.today.month}/{self.today.year}', '%d/%m/%Y')
             case 5: date_output = datetime.strptime(f'{date_input}/{self.today.year}', '%d/%m/%Y')
             case 10: date_output = datetime.strptime(date_input, '%d/%m/%Y')
+            case _: raise ValueError
 
         mis_format = date_output.strftime('%d/%m/%Y')
 
@@ -71,14 +73,14 @@ class Mis:
     def send_keys(self, path, value):
         self.elemento(path).send_keys(value)
     
-    def enviar_otro(self,ruta,ruta_otro,valor):
-        self.elemento(ruta).click()
-        self.esperar_recarga(self.elemento(ruta))
-        self.elemento(ruta_otro).send_keys(valor)
+    def enviar_otro(self, path, other_path, value):
+        self.elemento(path).click()
+        self.esperar_recarga(self.elemento(path))
+        self.elemento(other_path).send_keys(value)
 
-    def seleccionar(self, ruta, valor = '', por = 'index', wait = False):
+    def seleccionar(self, path, valor = '', por = 'index', wait = False):
         
-        ref = self.elemento(ruta)
+        ref = self.elemento(path)
         seleccionar = Select(ref)
 
         match por:
@@ -90,8 +92,8 @@ class Mis:
 
         if wait: self.esperar_recarga(ref)
 
-    def extraer_cantidad(self, ruta):
-        return len(self.elemento(ruta).find_elements('tag name', 'tr')) - 1
+    def extraer_cantidad(self, path):
+        return len(self.elemento(path).find_elements('tag name', 'tr')) - 1
         
     def cerrar(self):
         self.driver.close()

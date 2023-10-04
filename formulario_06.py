@@ -55,27 +55,27 @@ class Servicio(Mis):
             self.elemento(save_path).click()
             self.esperar_alerta() # Espera
 
-    def encabezado(self, fila): 
+    def encabezado(self, row: int): 
 
         # Entra al formulario de entrada de servicios
         self.valores = ''
         self.acceder("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
         # Selecciona el hogar y asigna la fecha
-        hogar = HOGAR[fila]
+        hogar = HOGAR[row]
         self.elemento(XPATH[0]).click() 
         self.elemento(XPATH[1]).send_keys(hogar, Keys.ENTER)
-        fecha_visita = self.enviar_fecha(XPATH[2],lista('FechaVisita')[fila])
+        fecha_visita = self.enviar_fecha(XPATH[2],lista('FechaVisita')[row])
 
         # Motivo y lugar de visita
-        motivo = lista('MotivoVisita')[fila]
-        lugar = lista('EntregaEn')[fila]
+        motivo = lista('MotivoVisita')[row]
+        lugar = lista('EntregaEn')[row]
         self.seleccionar(XPATH[3], motivo)
         self.seleccionar(XPATH[4], lugar)
 
         # Firma
         self.seleccionar(XPATH[5], 1)
-        caregiver = lista('caregiver')[fila]
+        caregiver = lista('caregiver')[row]
         for i in self.seleccionar(XPATH[6], por='').options:
             if i.text[-7:] == caregiver:
                 i.click()
