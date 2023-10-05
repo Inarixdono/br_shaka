@@ -5,6 +5,7 @@
 """
 
 from libreria import Mis
+from pandas import read_csv
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,15 +13,15 @@ from funciones import lista
 from math import floor
 from database import Database
 
-HOGAR = lista('Hogar')
+df = read_csv(r'Archivos\Servir.csv', delimiter= ';', index_col= 'ID',
+              dtype= {'beneficiaries_served': str})
+
 XPATH = lista('servicios','XPATH')
-almacen = Database('servicios_shaka')
 
 class Servicio(Mis):
 
     def __init__(self):
         self.almacen = Database('servicios_shaka')
-        self.campos = 'id_hogar, fecha_visita, motivo, lugar, servicio_general, donante_general, beneficiarios_servidos, servicio_individual, donante_individual'
         super().__init__()
 
     def _return_service(self, service: str):
@@ -29,11 +30,16 @@ class Servicio(Mis):
         dominium = f'//*[@id="MainContent_mainPanal"]/a[{int_service + 2}]'
         
         match int_service:
-            case 1: save = '//*[@id="MainContent_btnsaveHealth"]'
-            case 2: save = '//*[@id="MainContent_btnsaveEducation"]'
-            case 3: save = '//*[@id="MainContent_btnsavePSS"]'
-            case 4: save = '//*[@id="MainContent_btnsaveProtection"]'
-            case 5: save = '//*[@id="MainContent_btnsave"]'
+            case 1:
+                save = '//*[@id="MainContent_btnsaveHealth"]'
+            case 2:
+                save = '//*[@id="MainContent_btnsaveEducation"]'
+            case 3:
+                save = '//*[@id="MainContent_btnsavePSS"]'
+            case 4:
+                save = '//*[@id="MainContent_btnsaveProtection"]'
+            case 5:
+                save = '//*[@id="MainContent_btnsave"]'
 
         return self.almacen.service_path(service), dominium, save
     
@@ -51,7 +57,10 @@ class Servicio(Mis):
             if donor != '0':
                 donor_path = service_path[:-2] + '_dnr' + service_path[-2:]
                 self.seleccionar(donor_path, donor)
+                
         if save:
+            #TODO: SE ESTÁ PRESENTANDO UNA EXCEPCIÓN EN EL GUARDADO DEL DOMINIO DE SALUD
+            #      HACER PRUEBAS Y CORREGIR.
             self.elemento(save_path).click()
             self.esperar_alerta() # Espera
 
@@ -62,24 +71,24 @@ class Servicio(Mis):
         self.acceder("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
 
         # Selecciona el hogar y asigna la fecha
-        hogar = HOGAR[row]
+        hogar = df.home[row]
         self.elemento(XPATH[0]).click() 
         self.elemento(XPATH[1]).send_keys(hogar, Keys.ENTER)
-        fecha_visita = self.enviar_fecha(XPATH[2],lista('FechaVisita')[row])
+        fecha_visita = self.enviar_fecha(XPATH[2], df.date[row])
 
         # Motivo y lugar de visita
-        motivo = lista('MotivoVisita')[row]
-        lugar = lista('EntregaEn')[row]
+        motivo = df.reason[row]
+        lugar = df.place[row]
         self.seleccionar(XPATH[3], motivo)
         self.seleccionar(XPATH[4], lugar)
 
         # Firma
         self.seleccionar(XPATH[5], 1)
-        caregiver = lista('caregiver')[row]
-        for i in self.seleccionar(XPATH[6], por='').options:
-            if i.text[-7:] == caregiver:
-                i.click()
-                self.esperar_recarga(i)
+        caregiver_select = self.seleccionar(XPATH[6], por='').options
+        for caregiver in caregiver_select:
+            if caregiver.text[-7:] == df.caregiver[row]:
+                caregiver.click()
+                self.esperar_recarga(caregiver)
                 break
         self.seleccionar(XPATH[7], 1)
         
@@ -90,9 +99,9 @@ class Servicio(Mis):
         self.elemento('//*[@id="MainContent_btnsaveMain"]').click()
         self.esperar_alerta() 
 
-    def rotar_beneficiario(self, fila): # Hace un recorrido entre los beneficiarios y le va marcando su servicio 
+    def rotar_beneficiario(self, fila):
 
-        self.valores += f', "{lista("S_GENERAL")[fila]}", "{lista("D_GENERAL")[fila]}", "{lista("B_SERVIDO")[fila]}", "{lista("SERVBEN")[fila]}", "{lista("D_BENSERV")[fila]}"'
+        self.valores += f', "{df.general_service[fila]}", "{df.general_donor[fila]}", "{df.beneficiaries_served[fila]}", "{df.individual_service[fila]}", "{df.individual_donor[fila]}"'
 
         servicio_general = lista('S_GENERAL')[fila].split(' ')
         servicio_individual = lista('SERVBEN')[fila].split(' ')
@@ -105,8 +114,10 @@ class Servicio(Mis):
 
             if not servir_general:
 
-                if individual: seleccionado = beneficiario
-                else: continue
+                if individual:
+                    seleccionado = beneficiario
+                else:
+                    continue
 
             else: seleccionado = beneficiario
 
@@ -158,3 +169,6 @@ def main():
     sesion.cerrar()
 
 main()
+
+#TODO: REEMPLAZAR EL METODO DE INSERTADO DE REGISTRO POR EL PROCEDURE Y ELIMINAR
+#      LAS LISTAS INNECESARIAS, USAR EL OBJETO DEL DATAFRAME.

@@ -40,7 +40,7 @@ class HomeMember(Home):
     
 
 class HIVPatient(HomeMember):
-    def __init__(self, argname, argender, argage, argrecord, argfapps, argindex = False):
+    def __init__(self, argname, argender, argage, argrecord, argfapps, argindex= False):
         self.index : bool = argindex
         self.record: str = argrecord
         self.fapps: str = argfapps
@@ -49,17 +49,16 @@ class HIVPatient(HomeMember):
 class Database():
     def __init__(self, table):
         self.table = table
-        self.connect = bd.connect(user='root', password= PASS, database='br', host= 'localhost', port='3307')
+        self.connect = bd.connect(user='root', password= PASS,
+                                  database='br', host= 'localhost', port='3307')
         self.cursor = self.connect.cursor()
 
-    def return_id_vih(self, value):
-        self.cursor.execute(f'SELECT id_vih FROM vih\
-                              INNER JOIN beneficiario ON vih.id_beneficiario = beneficiario.id_beneficiario\
-                              WHERE beneficiario.codigo_unico = "{value}"')
+    def return_id_vih(self, value: str):
+        self.cursor.execute(f'SELECT return_id_vih("{value}")')
         return self.cursor.fetchone()[0]
     
-    def return_id_hogar(self, value):
-        self.cursor.execute(f'SELECT id_hogar FROM hogar WHERE	hogar = "{value}"')
+    def return_id_hogar(self, value: str):
+        self.cursor.execute(f'SELECT return_id_hogar("{value}")')
         return self.cursor.fetchone()[0]
     
     def return_comunidad(self, value):
