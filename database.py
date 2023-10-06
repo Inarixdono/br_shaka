@@ -57,21 +57,17 @@ class Database():
         self.cursor.execute(f'SELECT return_id_vih("{value}")')
         return self.cursor.fetchone()[0]
     
-    def return_id_hogar(self, value: str):
+    def return_id_home(self, value: str):
         self.cursor.execute(f'SELECT return_id_hogar("{value}")')
         return self.cursor.fetchone()[0]
     
-    def return_comunidad(self, value):
-        self.cursor.execute(f"SELECT comunidad.nombre AS 'Comunidad', distrito.nombre AS 'Distrito', municipio.nombre AS 'Municipio', provincia.nombre AS 'Provincia' FROM comunidad\
-                              INNER JOIN distrito ON comunidad.id_distrito = distrito.id_distrito\
-                              INNER JOIN municipio ON distrito.id_municipio = municipio.id_municipio\
-                              INNER JOIN provincia ON municipio.id_provincia = provincia.id_provincia\
-                              WHERE comunidad.nombre = '{value}'")
-        return self.cursor.fetchone()
-
     def service_path(self, code: str):
         self.cursor.execute(f'SELECT return_service_xpath({code})')
         return self.cursor.fetchone()[0]
+
+    def insert_service(self, values: str):
+        self.cursor.execute(f'CALL insert_service({values})')
+        self.commit()
 
     def insert(self, campos, values):
         self.cursor.execute(f'INSERT INTO {self.table}({campos}) VALUES({values})')
