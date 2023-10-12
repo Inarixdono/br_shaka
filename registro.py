@@ -9,7 +9,7 @@ from selenium.webdriver.common.keys import Keys
 from funciones import lista
 from database import *
 
-rutas_01 = lista('ruta','ard001','id', 'Rutas')
+rutas_01 = lista('ruta','ard001','id', 'paths')
 
 class Identification(Mis):
     
@@ -79,7 +79,7 @@ class Identification(Mis):
         sesion.cerrar()
 
 del rutas_01
-rutas_03 = lista('ruta','ard003','id', 'Rutas')
+rutas_03 = lista('ruta','ard003','id', 'paths')
 
 class Register(Identification):
 

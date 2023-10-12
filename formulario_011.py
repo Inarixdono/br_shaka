@@ -1,3 +1,4 @@
+
 from libreria import Mis
 from database import Database
 from selenium.webdriver.common.keys import Keys
@@ -148,7 +149,8 @@ class Adherencia(Mis):
                 sesion.parte1(abandono= arg_abandono)
                 sesion.parte2(arg_abandono)
                 sesion.parte3()
-            except ValueError: break
+            except ValueError: 
+                break
         print('ya')
 
         sesion.adherencia.close_connection()
