@@ -55,8 +55,7 @@ class Servicio(Mis):
             self.seleccionar(service_path, 1)
 
             if donor != '0':
-                donor_path = service_path[:-2] + '_dnr' + service_path[-2:]
-                self.seleccionar(donor_path, donor)
+                self.seleccionar(self.add_sufix(service_path, 'dnr'), donor)
                 
         if save:
             #TODO: SE ESTÁ PRESENTANDO UNA EXCEPCIÓN EN EL GUARDADO DEL DOMINIO DE SALUD
@@ -108,13 +107,11 @@ class Servicio(Mis):
                     seleccionado = beneficiario
                 else:
                     continue
-
             else:
                 seleccionado = beneficiario
 
             try:
                 self.seleccionar(XPATH[8], seleccionado , 'texto', True)
-
             except UnexpectedAlertPresentException:
                 print("Beneficiario tiene 21 años")
 

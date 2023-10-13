@@ -6,24 +6,9 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.support.ui import Select
 from funciones import lista
-from database import Database
 from datetime import datetime, date
 import pyperclip as ctrl
 from credentials import USER, PASS
-
-"""
-
-Librerias que no se estan usando de momento en este archivo
-
-import pandas as pd
-import pyperclip as ctrl
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.common.by import By
-from selenium.webdriver.common.alert import Alert
-from selenium.common.exceptions import TimeoutException
-from selenium.common.exceptions import UnexpectedAlertPresentException
-import time
-""" 
 
 class Mis:
     def __init__(self):
@@ -38,35 +23,31 @@ class Mis:
         self.elemento('//*[@id="txtPassword"]').send_keys(PASS)
         self.elemento('//*[@id="btnLogin"]').click()
 
-    def acceder(self,enlace):
+    def acceder(self, enlace: str):
         self.driver.get(enlace)
         
-    def elemento(self, path):
+    def elemento(self, path: str):
         return self.driver.find_element('xpath', path)
         
-    def seleccionar_hogar(self, path, home_code):
+    def seleccionar_hogar(self, path: str, home_code: str):
         ref = self.elemento(path)
         code_input = '/html/body/span/span/span[1]/input'
         self.elemento(path).click()
         self.elemento(code_input).send_keys(home_code, Keys.ENTER)
         self.esperar_recarga(ref)
 
-    def enviar_fecha(self, path, date_input, allows_entry = False):
-        
+    def enviar_fecha(self, path: str, date_input: str, allows_entry = False): 
         match len(date_input):
             case 2: 
                 date_output = datetime.strptime(
                     f'{date_input}/{self.today.month}/{self.today.year}',
-                    '%d/%m/%Y')
-                
+                    '%d/%m/%Y')         
             case 5: 
                 date_output = datetime.strptime(
                     f'{date_input}/{self.today.year}',
-                    '%d/%m/%Y')
-                
+                    '%d/%m/%Y')   
             case 10:
                 date_output = datetime.strptime(date_input, '%d/%m/%Y')
-
             case _:
                 raise ValueError
 
@@ -74,14 +55,16 @@ class Mis:
 
         if allows_entry: 
             self.elemento(path).send_keys(mis_format, Keys.ENTER)
-
         else:
             ctrl.copy(mis_format)
             self.elemento(path).send_keys(Keys.CONTROL, 'v', Keys.ENTER)
 
         return date_output.isoformat().split('T')[0]
     
-    def send_keys(self, path, value):
+    def add_sufix(self, value: str, sufix: str):
+        return value[:-2] + f'_{sufix}' + value[-2:]
+
+    def send_keys(self, path: str, value: str):
         self.elemento(path).send_keys(value)
     
     def enviar_otro(self, path, other_path, value):
@@ -89,8 +72,7 @@ class Mis:
         self.esperar_recarga(self.elemento(path))
         self.elemento(other_path).send_keys(value)
 
-    def seleccionar(self, path: str, valor = '', por = 'index', wait = False):
-        
+    def seleccionar(self, path: str, valor = '', por = 'index', wait = False):   
         ref = self.elemento(path)
         seleccionar = Select(ref)
 
@@ -105,11 +87,9 @@ class Mis:
                 return seleccionar
             case _:
                 print('Invalid selection method')
+
         if wait:
             self.esperar_recarga(ref)
-
-    def extraer_cantidad(self, path):
-        return len(self.elemento(path).find_elements('tag name', 'tr')) - 1
         
     def cerrar(self):
         self.driver.close()
@@ -120,13 +100,25 @@ class Mis:
     def esperar_alerta(self):
         self.wait.until(EC.alert_is_present()).accept()
 
+class DataFrameWrapper:
+    def __init__(self, df):
+        self.df = df
+
+    def __getattr__(self, name):
+        if name in self.df.columns:
+            return self.df.iloc[0][name]
+        else:
+            raise AttributeError(f"'DataFrameWrapper' object has no attribute '{name}'")
+
 XPATH = lista('graduacion','XPATH')
 
 class Graduate(Mis): 
-
     def tabla(self, n):
         return f'//*[@id="MainContent_gvBenchmark{n}"]/tbody' 
     
+    def extraer_cantidad(self, path):
+        return len(self.elemento(path).find_elements('tag name', 'tr')) - 1
+
     def format_preguntas(self, n):
         # Para el punto 
         P = (f'//*[@id="MainContent_gvBenchmark8_ddlChildEnrolledInSchool_{n}"]',
