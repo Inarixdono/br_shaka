@@ -4,19 +4,26 @@
     Inarixdono
 """
 
-from libreria import Mis
+from libreria import Mis, DataFrameWrapper
 from pandas import read_csv
 from selenium.common.exceptions import UnexpectedAlertPresentException
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 from funciones import lista
 from math import floor
 from database import Database
 
 df = read_csv(r'Archivos\Servir.csv', delimiter= ';', index_col= 'ID',
-              dtype= {'beneficiaries_served': str})
+              dtype= {
+                  'general_service': str,
+                  'general_donor' : str,
+                  'beneficiaries_served': str,
+                  'individual_service' : str,
+                  'individual_donor' : str})
+xpath = DataFrameWrapper(
+    read_csv(
+        r'paths\ard006.csv', delimiter= ';', index_col= 0).T
+)
 bd = Database('servicios_shaka')
-XPATH = lista('servicios','XPATH')
 
 class Servicio(Mis):
 
@@ -31,15 +38,15 @@ class Servicio(Mis):
         
         match int_service:
             case 1:
-                save = '//*[@id="MainContent_btnsaveHealth"]'
+                save = xpath.save_health
             case 2:
-                save = '//*[@id="MainContent_btnsaveEducation"]'
+                save = xpath.save_education
             case 3:
-                save = '//*[@id="MainContent_btnsavePSS"]'
+                save = xpath.save_pss
             case 4:
-                save = '//*[@id="MainContent_btnsaveProtection"]'
+                save = xpath.save_protection
             case 5:
-                save = '//*[@id="MainContent_btnsave"]'
+                save = xpath.save_main
 
         return self.almacen.service_path(service), dominium, save
     
@@ -66,37 +73,37 @@ class Servicio(Mis):
     def encabezado(self, row: int): 
 
         # Entra al formulario de entrada de servicios
-        self.acceder("https://pactbrmis.org/DataEntry/service_delivery.aspx?tokenID=&action=") 
+        self.acceder(xpath.service_link) 
 
         # Selecciona el hogar y asigna la fecha
-        self.elemento(XPATH[0]).click() 
-        self.elemento(XPATH[1]).send_keys(df.home[row], Keys.ENTER)
-        self.fecha_visita = self.enviar_fecha(XPATH[2], df.date[row])
+        self.seleccionar_hogar(xpath.home_container, df.home[row])
+        self.fecha_visita = self.enviar_fecha(xpath.date, df.date[row])
 
         # Motivo y lugar de visita
-        self.seleccionar(XPATH[3], df.reason[row])
-        self.seleccionar(XPATH[4], df.place[row])
+        self.seleccionar(xpath.reason, df.reason[row])
+        self.seleccionar(xpath.place, df.place[row])
 
         # Firma
-        self.seleccionar(XPATH[5], 1)
-        caregiver_select = self.seleccionar(XPATH[6], por='').options
+        self.seleccionar(xpath.case_plan, 1)
+        caregiver_select = self.seleccionar(xpath.caregiver_list, por='').options
         for caregiver in caregiver_select:
             if caregiver.text[-7:] == df.caregiver[row]:
                 caregiver.click()
                 self.esperar_recarga(caregiver)
                 break
-        self.seleccionar(XPATH[7], 1)
+        self.seleccionar(xpath.cargiver_sign, 1)
 
         # Guarda el encabezado
-        self.elemento('//*[@id="MainContent_btnsaveMain"]').click()
+        self.elemento(xpath.save_header).click()
         self.esperar_alerta() 
 
     def rotar_beneficiario(self, row: int):
 
-        servicio_general = df.general_service[row].split(' ')
-        servicio_individual = df.individual_service[row].split(' ')
+        servicio_general = df.general_service.tolist()[row].split(' ')
+        servicio_individual = df.individual_service.tolist()[row].split(' ')
         servir_general = servicio_general[0] != '0'
-        miembros = [o.text for o in self.seleccionar(XPATH[8], por= '').options[1:]]
+        miembros = [o.text for o in self.seleccionar(
+            xpath.member_list, por= '').options[1:]]
 
         for beneficiario in miembros:
             
@@ -104,39 +111,35 @@ class Servicio(Mis):
 
             if not servir_general:
                 if individual:
-                    seleccionado = beneficiario
+                    selected = beneficiario
                 else:
                     continue
             else:
-                seleccionado = beneficiario
+                selected = beneficiario
 
             try:
-                self.seleccionar(XPATH[8], seleccionado , 'texto', True)
+                self.seleccionar(xpath.member_list, selected , 'texto', True)
             except UnexpectedAlertPresentException:
                 print("Beneficiario tiene 21 años")
-
             else:
                     # Comprueba si el beneficiario esta activo
-                if self.elemento(XPATH[8]).get_attribute('value') not in lista('ID','BenSalidos','Ben'):
-                    #TODO: Comprobar el valor que trae el método `get_attribute`.
-                    # Comprueba la edad del beneficiario
-                    if int(self.elemento(XPATH[9]).get_attribute('value')) in range(17, 21):
-                        #TODO: Simplificar el dato de la edad.
-                        self.seleccionar(XPATH[10],1)
-                        self.seleccionar(XPATH[11],2)
+                if selected.split('-')[1].strip(' ') not in lista('Ben', 'BenSalidos'):
+                    age = int(self.elemento(xpath.age).get_attribute('value'))
+                    if age in range(17, 21):
+                        self.seleccionar(xpath.school, 1)
+                        self.seleccionar(xpath.economic_activity, 2)
                     else:
-                        self.seleccionar(XPATH[10],3)
-                        self.seleccionar(XPATH[11],3)
+                        self.seleccionar(xpath.school, 3)
+                        self.seleccionar(xpath.economic_activity, 3)
 
-                    # Comprueba si el hogar recibe algun servicio individual
                     if str(servicio_individual[0]) != '0' and individual: 
                         self._servir(servicio_individual, 
-                                     df.individual_donor[row].split(' '), 
+                                     df.individual_donor.tolist()[row].split(' '), 
                                      not servir_general)
-
+                        
                     if servir_general:
-                        self._servir(servicio_general, df.general_donor[row].split(' '))
-                    
+                        self._servir(servicio_general,
+                                     df.general_donor.tolist()[row].split(' '))     
                 else:
                     print('Beneficiario salido')
     
@@ -164,5 +167,4 @@ def main():
     sesion.almacen.close_connection()
     sesion.cerrar()
 
-main()
-
+#main()
