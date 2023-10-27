@@ -1,3 +1,9 @@
+"""
+    Shaka
+    Adherence form
+    Inarixdono
+"""
+
 from libreria import Mis, DataFrameWrapper
 from pandas import read_csv
 from database import Database
@@ -27,7 +33,7 @@ class Adherencia(Mis):
         :param primera_vez: A boolean indicating whether this is the first time the patient is taking ARV treatment.
         :param abandono: A boolean indicating whether the patient has abandoned treatment.
         """
-        
+
         self.campos = "id_vih, fecha_adherencia, abandono"
         self.valores = ""
 
