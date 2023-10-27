@@ -30,8 +30,22 @@ bd = Database()
 
 
 class Service(Mis):
+    """
+    This class represents a service that can be performed on a group of beneficiaries.
+    It contains methods for selecting and serving services, traversing members, and saving service data.
+    """
 
-    def return_service(self, service: str):
+    def __return_service(self, service: str):
+        """
+        Returns the service path, dominium path, and save path for a given service.
+
+        Args:
+            service (str): The service to be returned.
+
+        Returns:
+            tuple: A tuple containing the service path, dominium path, and save path.
+        """
+
         int_service: int = floor(float(service))
         dominium = f'//*[@id="MainContent_mainPanal"]/a[{int_service + 2}]'
 
@@ -50,8 +64,17 @@ class Service(Mis):
         return bd.service_path(service), dominium, save
 
     def serve(self, services: tuple, donors: tuple, save=True):
+        """
+        Serves the given services for a member.
+
+        Args:
+            services (tuple): A tuple containing the services to be served.
+            donors (tuple): A tuple containing the donors for each service.
+            save (bool, optional): Whether or not to save the service data. Defaults to True.
+        """
+
         for service, donor in zip(services, donors):
-            service_path, dominium_path, save_path = self.return_service(service)
+            service_path, dominium_path, save_path = self.__return_service(service)
 
             if not self.element(service_path).is_displayed():
                 self.element(dominium_path).click()
@@ -68,6 +91,12 @@ class Service(Mis):
             self.wait_for_alert()
 
     def header(self, row: int):
+        """
+        Sets the header data for the service form.
+
+        Args:
+            row (int): The row number of the group in the dataframe.
+        """
 
         self.get(xpath.service_link)
 
@@ -94,15 +123,11 @@ class Service(Mis):
         self.wait_for_alert()
 
     def traverse_members(self, row: int):
-        
         """
         Traverses the members list and performs services based on if they recieved.
 
         Args:
             row (int): The row number of the group in the dataframe.
-
-        Returns:
-            None
         """
 
         servicio_general = df.general_service.tolist()[row].split(" ")
@@ -113,7 +138,6 @@ class Service(Mis):
         ]
 
         for member in member_list:
-
             individual = member[-2:] in df.beneficiaries_served[row].split(" ")
 
             if not servir_general:
@@ -154,6 +178,16 @@ class Service(Mis):
                     print("Beneficiario salido")
 
     def save_service(self, row: int):
+        """
+        Saves the service data for the given row into the database.
+
+        Args:
+            row (int): The row number of the group in the dataframe.
+
+        Returns:
+            None
+        """
+
         columns = [i for i in range(11) if i not in [0, 1, 4, 5]]
         bd.insert_service(
             '{}, "{}", {}, {}, "{}", "{}", "{}", "{}", "{}"'.format(
@@ -165,7 +199,6 @@ class Service(Mis):
 
 
 def main():
-
     sesion = Service()
     served_families = df.home
 
@@ -183,5 +216,6 @@ def main():
     sesion.almacen.close_connection()
     sesion.close()
 
-
+#
 # main()
+#
