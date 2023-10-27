@@ -8,12 +8,26 @@ bd = Database()
 
 
 class Adherencia(Mis):
+    """
+    This class represents a form for monitoring adherence to ARV treatment.
+    It contains two parts, each with a set of questions to be answered by the user.
+    The first part is mandatory and the second part is optional, depending on whether the patient has abandoned treatment or not.
+    """
+
     def __init__(self):
         self.campos = "id_vih, fecha_adherencia, abandono"
         self.valores = ""
         super().__init__()
 
     def parte1(self, primera_vez=False, abandono=False):
+        """
+        This method represents the first part of the adherence form.
+        It contains a set of questions to be answered by the user.
+        The answers are stored in the 'campos' and 'valores' attributes of the class.
+        :param primera_vez: A boolean indicating whether this is the first time the patient is taking ARV treatment.
+        :param abandono: A boolean indicating whether the patient has abandoned treatment.
+        """
+        
         self.campos = "id_vih, fecha_adherencia, abandono"
         self.valores = ""
 
@@ -82,6 +96,13 @@ class Adherencia(Mis):
         self.select(xpath.question_7, 1)
 
     def parte2(self, abandono=False):
+        """
+        This method represents the second part of the adherence form.
+        It contains a set of questions to be answered by the user.
+        The answers are stored in the 'campos' and 'valores' attributes of the class.
+        :param abandono: A boolean indicating whether the patient has abandoned treatment.
+        """
+
         if not abandono:
             proxima_cita = self.send_date(xpath.question_8a, input("Próxima cita"))
             self.select(xpath.question_9, 2)
