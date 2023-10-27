@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-def lista(columna, nombre = 'Servir', index='ID', carpeta = 'Archivos'):
+def lista(columna, nombre = 'Servir', index='ID', carpeta = 'rsc'):
     lista = pd.read_csv(
         f'{carpeta}\{nombre}.csv',
         delimiter=';',

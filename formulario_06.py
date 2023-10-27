@@ -13,7 +13,7 @@ from math import floor
 from database import Database
 
 df = read_csv(
-    r"Archivos\Servir.csv",
+    r"rsc\Servir.csv",
     delimiter=";",
     index_col="ID",
     dtype={

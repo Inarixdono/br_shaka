@@ -1,7 +1,12 @@
-Archivos
-Driver
-paths
 .vscode
 .ipynb_checkpoints
-credentials.py
 __pycache__
+rsc
+driver
+paths
+04 temp.ipynb
+credentials.py
+database.py
+formulario_016.ipynb
+formulario_016.py
+registro.py
