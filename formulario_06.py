@@ -38,6 +38,7 @@ class Service(Mis):
     def __return_service(self, service: str):
         """
         Returns the service path, dominium path, and save path for a given service.
+        Service xpaths are stored on the database.
 
         Args:
             service (str): The service to be returned.
