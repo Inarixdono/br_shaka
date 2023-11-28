@@ -52,14 +52,16 @@ class Service(Mis):
 
         match int_service:
             case 1:
-                save = xpath.save_health
+                save = xpath.save_prevention
             case 2:
-                save = xpath.save_education
+                save = xpath.save_treatment
             case 3:
-                save = xpath.save_pss
+                save = xpath.save_support
             case 4:
-                save = xpath.save_protection
+                save = xpath.save_education
             case 5:
+                save = xpath.save_protection
+            case 6:
                 save = xpath.save_main
 
         return bd.service_path(service), dominium, save
@@ -82,8 +84,8 @@ class Service(Mis):
             self.wait.until(EC.visibility_of(self.element(service_path)))
             self.select(service_path, 1)
 
-            if donor != "0":
-                self.select(self.add_sufix(service_path, "dnr"), donor)
+            if donor != "-1":
+                self.select(self.add_sufix(service_path, "donor_id"), donor)
 
         if save:
             # TODO: SE ESTÁ PRESENTANDO UNA EXCEPCIÓN EN EL GUARDADO DEL DOMINIO DE SALUD
@@ -103,11 +105,11 @@ class Service(Mis):
 
         # Home and visit date
         self.select_household(xpath.home_container, df.home[row])
-        self.fecha_visita = self.send_date(xpath.date, df.date[row])
+        self.fecha_visita = self.send_date(xpath.visit_date, df.date[row])
 
         # Reason and place
-        self.select(xpath.reason, df.reason[row])
-        self.select(xpath.place, df.place[row])
+        self.select(xpath.visit_reason, df.reason[row])
+        self.select(xpath.visit_place, df.place[row])
 
         # Sign
         self.select(xpath.case_plan, 1)
@@ -117,7 +119,7 @@ class Service(Mis):
                 caregiver.click()
                 self.wait_for_reload(caregiver)
                 break
-        self.select(xpath.cargiver_sign, 1)
+        self.select(xpath.caregiver_sign, 1)
 
         # Saving header
         self.element(xpath.save_header).click()
@@ -155,7 +157,7 @@ class Service(Mis):
                 print("Beneficiario tiene 21 años")
             else:
                 # Comprueba si el beneficiario esta activo
-                if selected.split("-")[1].strip(" ") not in lista("Ben", "BenSalidos"):
+                if selected not in lista("Ben", "BenSalidos"):
                     age = int(self.element(xpath.age).get_attribute("value"))
                     if age in range(17, 21):
                         self.select(xpath.school, 1)
@@ -212,11 +214,9 @@ def main():
             sesion.traverse_members(i)
         else:
             print("Familia salida, no servida.")
-        sesion.save_service(i)
+        #sesion.save_service(i)
 
     sesion.almacen.close_connection()
     sesion.close()
 
-#
-# main()
-#
+main()
