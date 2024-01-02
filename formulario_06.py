@@ -84,8 +84,11 @@ class Service(Mis):
             self.wait.until(EC.visibility_of(self.element(service_path)))
             self.select(service_path, 1)
 
-            if donor != "-1":
-                self.select(self.add_sufix(service_path, "donor_id"), donor)
+            if donor != "0":
+                donor_path = self.add_sufix(service_path, "donor_id")
+                donor_element = self.element(donor_path)
+                self.wait.until(EC.visibility_of(donor_element))
+                self.select(donor_path, donor)
 
         if save:
             # TODO: SE ESTÁ PRESENTANDO UNA EXCEPCIÓN EN EL GUARDADO DEL DOMINIO DE SALUD
@@ -108,14 +111,14 @@ class Service(Mis):
         self.fecha_visita = self.send_date(xpath.visit_date, df.date[row])
 
         # Reason and place
-        self.select(xpath.visit_reason, df.reason[row])
+        # self.select(xpath.visit_reason, df.reason[row])
         self.select(xpath.visit_place, df.place[row])
 
         # Sign
         self.select(xpath.case_plan, 1)
         caregiver_select = self.select(xpath.caregiver_list, by="").options
         for caregiver in caregiver_select:
-            if caregiver.text[-7:] == df.caregiver[row]:
+            if caregiver.text.split(" ")[0][-7:] == df.caregiver[row]:
                 caregiver.click()
                 self.wait_for_reload(caregiver)
                 break
@@ -219,4 +222,4 @@ def main():
     sesion.almacen.close_connection()
     sesion.close()
 
-main()
+# main()
