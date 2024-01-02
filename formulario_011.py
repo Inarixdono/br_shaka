@@ -4,7 +4,7 @@
     Inarixdono
 """
 
-from libreria import Mis, DataFrameWrapper
+from mis import MIS, DataFrameWrapper
 from pandas import read_csv
 from database import Database
 from selenium.webdriver.common.keys import Keys
@@ -13,7 +13,7 @@ xpath = DataFrameWrapper(read_csv(r"paths\ard011.csv", delimiter=";", index_col=
 bd = Database()
 
 
-class Adherencia(Mis):
+class Adherencia(MIS):
     """
     This class represents a form for monitoring adherence to ARV treatment.
     It contains two parts, each with a set of questions to be answered by the user.

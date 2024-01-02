@@ -15,7 +15,7 @@ import pyperclip as ctrl
 from credentials import USER, PASS
 
 
-class Mis:
+class MIS:
     """
     Class for interacting with the Management Information System.
     """

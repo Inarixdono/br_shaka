@@ -4,7 +4,7 @@
     Inarixdono
 """
 
-from libreria import Mis, DataFrameWrapper
+from mis import MIS, DataFrameWrapper
 from pandas import read_csv
 from selenium.common.exceptions import UnexpectedAlertPresentException
 from selenium.webdriver.support import expected_conditions as EC
@@ -29,7 +29,7 @@ xpath = DataFrameWrapper(read_csv(r"paths\ard006.csv", delimiter=";", index_col=
 bd = Database()
 
 
-class Service(Mis):
+class Service(MIS):
     """
     This class represents a service that can be performed on a group of beneficiaries.
     It contains methods for selecting and serving services, traversing members, and saving service data.
