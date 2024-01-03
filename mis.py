@@ -8,7 +8,7 @@ from driver import Driver
 from selenium.webdriver.common.keys import Keys
 from datetime import datetime
 import pyperclip as ctrl
-from credentials import USER, PASS
+from credentials import MIS_USER, MIS_PASS
 
 
 class MIS(Driver):
@@ -28,8 +28,8 @@ class MIS(Driver):
         """
         Logs in to the MIS using the credentials from the credentials module.
         """
-        self.element('//*[@id="txtUsername"]').send_keys(USER)
-        self.element('//*[@id="txtPassword"]').send_keys(PASS)
+        self.element('//*[@id="txtUsername"]').send_keys(MIS_USER)
+        self.element('//*[@id="txtPassword"]').send_keys(MIS_PASS)
         self.element('//*[@id="btnLogin"]').click()
 
     def select_household(self, path: str, home_code: str):
