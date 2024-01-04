@@ -11,7 +11,6 @@ from credentials import FAPPS_USER, FAPPS_PASS
 
 xpath = DataFrameWrapper(read_csv(r"paths\fapps.csv", delimiter=";", index_col=0).T)
 
-
 class FAPPS(Driver):
     """
     Class for interacting with FAPPS.
@@ -43,21 +42,47 @@ class FAPPS(Driver):
         self.element(xpath.btn_submit).click()
         self.wait_for_reload(txt_id)
 
+    def step_into(self, path: str):
+        """
+        Gets into the given path, clicks a button and wait for reload.
+
+        Args:
+            path (str): The path to step into.
+        """
+        btn = self.element(path)
+        btn.click()
+        self.wait_for_reload(btn)
+
     def get_appointment(self):
         """
         Gets the appointment for the patient currently selected.
         """
-        btn_tracing = self.element(xpath.btn_tracing)
-        btn_tracing.click()
-        self.wait_for_reload(btn_tracing)
+        self.step_into(xpath.btn_tracing)
         return self.element(xpath.appointment).text
-    
+
     def get_amount(self):
         """
         Gets the amount of medicine the patient currently selected has in their last tracing.
         """
-        btn_medicine = self.element(xpath.btn_medicine)
-        btn_medicine.click()
-        self.wait_for_reload(btn_medicine)
+        self.step_into(xpath.btn_medicine)
         return self.element(xpath.amount).text
-
+    
+    def get_cv(self):
+        """
+        Gets the viral charge of the patient currently selected.
+        """
+        self.step_into(xpath.btn_return)
+        self.step_into(xpath.btn_changes)
+        cv_date = self.element(xpath.txt_cv).text
+        cv_result = self.element(xpath.txt_date_cv).text
+        return cv_date, cv_result
+    
+    def main(self):
+        
+        df = read_csv(r"rsc\Pacientes VIH.csv", delimiter=";", index_col=0)
+        
+        for paciente in df.fapps:
+            self.search_patient(paciente)
+            cita = self.get_appointment()
+            cantidad = self.get_amount()
+            fecha_cv, resultado_cv = self.get_cv()
