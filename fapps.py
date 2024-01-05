@@ -19,6 +19,7 @@ class FAPPS(Driver):
     def __init__(self):
         super().__init__()
         self.driver.get(xpath.form)
+        self.__has_tracing = False
         self.__login()
 
     def __login(self):
@@ -41,6 +42,7 @@ class FAPPS(Driver):
         txt_id.send_keys(patient_id)
         self.element(xpath.btn_submit).click()
         self.wait_for_reload(txt_id)
+        self.__has_tracing = False
 
     def step_into(self, path: str):
         """
@@ -57,30 +59,48 @@ class FAPPS(Driver):
         """
         Gets the appointment for the patient currently selected.
         """
-        self.step_into(xpath.btn_tracing)
-        return self.element(xpath.appointment).text
+        appointment = "No tiene seguimiento"
+        
+        try:
+            self.step_into(xpath.btn_tracing)
+            appointment = self.element(xpath.appointment).text
+        except Exception:
+            print("El paciente no tiene seguimiento")
+        else:
+            self.__has_tracing = True
+        return appointment
 
     def get_amount(self):
         """
         Gets the amount of medicine the patient currently selected has in their last tracing.
         """
-        self.step_into(xpath.btn_medicine)
-        return self.element(xpath.amount).text
+        amount = 0
+    
+        if self.__has_tracing:
+            self.step_into(xpath.btn_medicine)
+            amount = self.element(xpath.amount).text
+
+        return amount
     
     def get_cv(self):
         """
         Gets the viral charge of the patient currently selected.
         """
-        self.step_into(xpath.btn_return)
-        self.step_into(xpath.btn_changes)
-        cv_date = self.element(xpath.txt_cv).text
-        cv_result = self.element(xpath.txt_date_cv).text
+        cv_date = "00/00/0000"
+        cv_result = "0"
+
+        if self.__has_tracing:
+            self.step_into(xpath.btn_return)
+            self.step_into(xpath.btn_changes)
+            cv_date = self.element(xpath.txt_cv).get_attribute("value")
+            cv_result = self.element(xpath.txt_date_cv).get_attribute("value")
+
         return cv_date, cv_result
     
     def main(self):
         
         df = read_csv(r"rsc\Pacientes VIH.csv", delimiter=";", index_col=0)
-        columnas = ["ID", "Nombre", "Código", "Record", "FAPPS", "Cita", "Cantidad", "Fecha CV", "Resultado CV", "Comentario", "Gestor"]
+        columnas = ["Nombre", "Código", "Record", "FAPPS", "Cita", "Cantidad", "Fecha CV", "Resultado CV", "Comentario", "Gestor"]
         cita = []
         cantidad = []
         fecha_cv = []
