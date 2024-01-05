@@ -80,9 +80,23 @@ class FAPPS(Driver):
     def main(self):
         
         df = read_csv(r"rsc\Pacientes VIH.csv", delimiter=";", index_col=0)
+        columnas = ["ID", "Nombre", "Código", "Record", "FAPPS", "Cita", "Cantidad", "Fecha CV", "Resultado CV", "Comentario", "Gestor"]
+        cita = []
+        cantidad = []
+        fecha_cv = []
+        resultado_cv = []
         
         for paciente in df.fapps:
             self.search_patient(paciente)
-            cita = self.get_appointment()
-            cantidad = self.get_amount()
-            fecha_cv, resultado_cv = self.get_cv()
+            cita.append(self.get_appointment())
+            cantidad.append(self.get_amount())
+            fecha, resultado = self.get_cv()
+            fecha_cv.append(fecha)
+            resultado_cv.append(resultado)
+
+        df.cita = cita
+        df.cantidad = cantidad
+        df.fecha_cv = fecha_cv
+        df.resultado_cv = resultado_cv
+        df.columns =  columnas
+        df.to_excel(r"rsc\Pacientes VIH.xlsx")
