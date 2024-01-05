@@ -20,7 +20,7 @@ class Driver:
     def __init__(self):
         self.today = date.today()
         self.driver = webdriver.Chrome(service=Service("driver\chromedriver.exe"))
-        self.wait = WebDriverWait(self.driver, 10)
+        self.wait = WebDriverWait(self.driver, 30)
 
     def get(self, link: str):
         """
