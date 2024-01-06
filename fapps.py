@@ -92,8 +92,8 @@ class FAPPS(Driver):
         if self.__has_tracing:
             self.step_into(xpath.btn_return)
             self.step_into(xpath.btn_changes)
-            cv_date = self.element(xpath.txt_cv).get_attribute("value")
-            cv_result = self.element(xpath.txt_date_cv).get_attribute("value")
+            cv_date = self.element(xpath.txt_date_cv).get_attribute("value")
+            cv_result = self.element(xpath.txt_cv).get_attribute("value")
 
         return cv_date, cv_result
     
@@ -120,3 +120,7 @@ class FAPPS(Driver):
         df.resultado_cv = resultado_cv
         df.columns =  columnas
         df.to_excel(r"rsc\Pacientes VIH.xlsx")
+
+        #TODO: Mandar fechas de manera que Excel las reconozca como fechas.
+        #TODO: Eficientar manera en que se mandan los datos al dataframe.
+        #TODO: Agregar manejo de datos faltantes para la base de datos y excel.
