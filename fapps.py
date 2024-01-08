@@ -59,15 +59,19 @@ class FAPPS(Driver):
         """
         Gets the appointment for the patient currently selected.
         """
-        appointment = "No tiene seguimiento"
+        appointment = "01/01/2000"
         
         try:
             self.step_into(xpath.btn_tracing)
-            appointment = self.element(xpath.appointment).text
         except Exception:
             print("El paciente no tiene seguimiento")
         else:
             self.__has_tracing = True
+            appointment = self.element(xpath.appointment).text
+            if appointment == ' ':
+                print("Paciente en abandono")
+                last_appointment = xpath.appointment.replace('2', '3')
+                appointment = self.element(last_appointment).text
         return appointment
 
     def get_amount(self):
@@ -86,7 +90,7 @@ class FAPPS(Driver):
         """
         Gets the viral charge of the patient currently selected.
         """
-        cv_date = "00/00/0000"
+        cv_date = "01/01/2000"
         cv_result = "0"
 
         if self.__has_tracing:
