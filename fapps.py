@@ -11,6 +11,7 @@ from credentials import FAPPS_USER, FAPPS_PASS
 
 xpath = DataFrameWrapper(read_csv(r"paths\fapps.csv", delimiter=";", index_col=0).T)
 
+
 class FAPPS(Driver):
     """
     Class for interacting with FAPPS.
@@ -47,7 +48,6 @@ class FAPPS(Driver):
     def step_into(self, path: str):
         """
         Gets into the given path, clicks a button and wait for reload.
-
         Args:
             path (str): The path to step into.
         """
@@ -60,7 +60,7 @@ class FAPPS(Driver):
         Gets the appointment for the patient currently selected.
         """
         appointment = "01/01/2000"
-        
+
         try:
             self.step_into(xpath.btn_tracing)
         except Exception:
@@ -68,9 +68,9 @@ class FAPPS(Driver):
         else:
             self.__has_tracing = True
             appointment = self.element(xpath.appointment).text
-            if appointment == ' ':
+            if appointment == " ":
                 print("Paciente en abandono")
-                last_appointment = xpath.appointment.replace('2', '3')
+                last_appointment = xpath.appointment.replace("2", "3")
                 appointment = self.element(last_appointment).text
         return appointment
 
@@ -79,13 +79,13 @@ class FAPPS(Driver):
         Gets the amount of medicine the patient currently selected has in their last tracing.
         """
         amount = 0
-    
+
         if self.__has_tracing:
             self.step_into(xpath.btn_medicine)
             amount = self.element(xpath.amount).text
 
         return amount
-    
+
     def get_cv(self):
         """
         Gets the viral charge of the patient currently selected.
@@ -100,16 +100,26 @@ class FAPPS(Driver):
             cv_result = self.element(xpath.txt_cv).get_attribute("value")
 
         return cv_date, cv_result
-    
+
     def main(self):
-        
         df = read_csv(r"rsc\Pacientes VIH.csv", delimiter=";", index_col=0)
-        columnas = ["Nombre", "Código", "Record", "FAPPS", "Cita", "Cantidad", "Fecha CV", "Resultado CV", "Comentario", "Gestor"]
+        columnas = [
+            "Nombre",
+            "Código",
+            "Record",
+            "FAPPS",
+            "Cita",
+            "Cantidad",
+            "Fecha CV",
+            "Resultado CV",
+            "Comentario",
+            "Gestor",
+        ]
         cita = []
         cantidad = []
         fecha_cv = []
         resultado_cv = []
-        
+
         for paciente in df.fapps:
             self.search_patient(paciente)
             cita.append(self.get_appointment())
@@ -122,9 +132,9 @@ class FAPPS(Driver):
         df.cantidad = cantidad
         df.fecha_cv = fecha_cv
         df.resultado_cv = resultado_cv
-        df.columns =  columnas
+        df.columns = columnas
         df.to_excel(r"rsc\Pacientes VIH.xlsx")
 
-        #TODO: Mandar fechas de manera que Excel las reconozca como fechas.
-        #TODO: Eficientar manera en que se mandan los datos al dataframe.
-        #TODO: Agregar manejo de datos faltantes para la base de datos y excel.
+        # TODO: Mandar fechas de manera que Excel las reconozca como fechas.
+        # TODO: Eficientar manera en que se mandan los datos al dataframe.
+        # TODO: Agregar manejo de datos faltantes para la base de datos y excel.
