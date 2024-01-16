@@ -9,7 +9,7 @@ from pandas import read_csv
 from credentials import FAPPS_USER, FAPPS_PASS
 
 
-xpath = DataFrameWrapper(read_csv(r"paths\fapps.csv", delimiter=";", index_col=0).T)
+xpath = DataFrameWrapper(read_csv(r"paths\buscar_citas.csv", delimiter=";", index_col=0).T)
 
 
 class FAPPS(Driver):
